@@ -1,0 +1,7 @@
+    .wrapper, body, html {
+    min-height: 0 !important;
+    }
+
+    .content-wrapper {
+        height: auto !important;
+    }

@@ -1,0 +1,118 @@
+@extends('layouts.index')
+
+@section('content')
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-14" style="margin-top:30px">
+            <div class="card">
+                <div class="card-header">Liệt Kê User</div>
+
+                <div class="card-body">
+                    @if (session('success'))
+                        <div class="alert alert-success" role="alert" id="demo" >
+                        <script>
+                            const myTimeout = setTimeout(myGreeting, 5000);
+                            function myGreeting() {
+                               $("#demo").addClass('d-none');
+                            }
+                        </script>
+                         {{ session('success') }}
+                        </div>
+                     @endif
+                    <table class="table table-sm table-bordered table-striped">
+                        <thead class="table-light">
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col"style="width: 66px;"><span class="d-flex justify-content-center">Hình ảnh</span></th>
+                            <th scope="col" style="width: 69px;"><span class="d-flex justify-content-center">Tên User</span></th>
+                            <th scope="col"><span class="d-flex justify-content-center">Nick Name</span></th>
+                            <th scope="col"><span class="d-flex justify-content-center">Email</span></th>
+                            <th scope="col" style="width: 112px;"><span class="d-flex justify-content-center">Số điện thoại</span></th>
+                            <th scope="col" style="width: 107px;"><span class="d-flex justify-content-center">Duyệt Blogger</span></th>
+                            <th scope="col" style="width: 152px;"><span class="d-flex justify-content-center">Quản Lý</span></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($user as $key=>$u)
+                                <tr>
+                                    <th scope="row"><span class="d-flex justify-content-center">{{ $key }}</span></th>
+                                    <td scope="row"><img class="d-flex justify-content-center" src="{{ asset('public/uploads/user/'.$u->avatar) }}" style="height:70px; width:74px; border-radius:50%"></td>
+                                    <td scope="row"><span class="d-flex justify-content-center">{{ $u->name }}</span></td>
+                                    <td scope="row"><span class="d-flex justify-content-center">{{ $u->ninkname }}</span></td>
+                                    <td scope="row"><span class="d-flex justify-content-center">{{ $u->email }}</span></td>
+                                    <td scope="row"><span class="d-flex justify-content-center">{{ $u->phone }}</span></td>
+                                    <td scope="row">
+                                        <span class="d-flex justify-content-center">
+                                                <div class="form-check form-check-inline">
+                                                    <input data-id="{{$u->id}}" value="{{$u->accept_blogger == 1 ? 'selected' :''}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="Active" data-off="InActive" {{ $u->accept_blogger ? 'checked' : '' }}>
+                                                </div>
+                                        </span>
+                                    </td>
+                                    <td scope="row">
+                                        <ul class="list-inline">
+                                            <!-- Show view -->
+                                            <li class="list-inline-item">
+                                                <a href="{{ route('manager_user.show',[$u->id]) }}" class="btn btn-primary btn-sm" style="background-color:rgb(63, 189, 28)">
+                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                </a>
+                                            </li>
+                                            <!-- Edit -->
+                                            <li class="list-inline-item">
+                                                <a href="{{ route('manager_user.edit',[$u->id]) }}" class="btn btn-primary btn-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                                </svg>
+                                                </a>
+                                            </li>
+                                            <!-- Reset password -->
+                                            <li class="list-inline-item">
+                                                <a href="{{ route('showPassword', [$u->id]) }}" class="btn btn-primary btn-sm" style="background-color:rgb(48, 119, 174)">
+                                                <i class="fa fa-key" aria-hidden="true"></i>
+                                                </a>
+                                            </li>
+                                            <!-- Delete -->
+                                            <li class="list-inline-item">
+                                            <form action="{{ route('manager_user.destroy',[$u->id]) }}" method="POST">
+                                                @method('DELETE')
+                                                @csrf
+                                                <button onclick="return confirm('Bạn chắc chắn xóa user này không')" class="btn btn-danger btn-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                                </svg>                                                
+                                            </button>
+                                            </form>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                @endforeach 
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
+<script>
+    $(function() {
+        $('.toggle-class').change(function() {
+        var accept_blogger = $(this).prop('checked') == true ? 1 : 0; 
+        var user_id = $(this).data('id'); 
+            $.ajax({
+                    type: "get",    
+                    dataType: "json",
+                    url: '/accept-role',
+                    data: {'accept_blogger': accept_blogger, 'user_id': user_id},
+                    success: function(data){
+                      console.log(data.success)
+                    }
+                });
+        })
+    })
+    </script>
