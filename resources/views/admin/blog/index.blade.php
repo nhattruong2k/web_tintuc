@@ -6,7 +6,6 @@
         <div class="col-md-16">
             <div class="card">
                 <div class="card-header">Liệt Kê Blog</div>
-
                 <div class="card-body">
                     @if (session('success'))
                         <div class="alert alert-success" role="alert" id="demo" >

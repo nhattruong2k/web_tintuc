@@ -26,7 +26,7 @@ class UpdateBlogRequest extends FormRequest
         return [
             'tenblog'=>'required|max:255',
             'tomtat'=>'required|max:255',
-            'blognoibat'=>'required',
+            'blog_noibat'=>'required',
             'content'=>'required',
             'danhmuc' => 'required',
             'slug_blog'=>'required',
@@ -39,7 +39,7 @@ class UpdateBlogRequest extends FormRequest
             'tenblog.unique'=>'Xin vui lòng điền tên bài viết mới ',
             'tenblog.required'=>'Xin vui lòng điền tên bài viết',
             'tomtat.required'=>'Xin vui lòng điền tóm tắt',
-            'blognoibat.required'=>'Xin vui lòng chọn blog nổi bật',
+            'blog_noibat.required'=>'Xin vui lòng chọn blog nổi bật',
             'image.required'=>'Xin vui lòng chọn hình ảnh',
             'content.required'=>'Xin vui lòng điền nội dung',
         ];

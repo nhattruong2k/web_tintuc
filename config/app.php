@@ -165,6 +165,7 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider ::class,
         Laravel\Passport\PassportServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
 
         // Overtrue\LaravelFollow\FollowServiceProvider::class,
@@ -236,6 +237,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+
     ],
 
 ];

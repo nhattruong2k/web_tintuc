@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="{{ asset('vendors/plugins/summernote/summernote-bs4.min.css')}}">
   <link rel="stylesheet" href="{{ asset('css/styleWrapper.css')}}">
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="/resources/demos/style.css">
+  {{-- <link rel="stylesheet" href="/resources/demos/style.css"> --}}
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 

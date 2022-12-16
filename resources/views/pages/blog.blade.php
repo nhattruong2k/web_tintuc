@@ -120,18 +120,32 @@
             @foreach($cungdanhmuc as $danh)
                 @foreach($danh->nhieublog as $nhieubaiviet)
                 @if($nhieubaiviet->id != $baiviet->id)
+                @if(Auth::user())
+                <input type="hidden" value="{{$nhieubaiviet->tenblog}}" class="wishlist_tenblog_{{$nhieubaiviet->id}}">
+                <input type="hidden" value="{{Auth::user()->name}}" class="wishlist_auth_{{$nhieubaiviet->id}}">
+                <input type="hidden" value="{{$nhieubaiviet->tomtat}}" class="wishlist_tomtat_{{$nhieubaiviet->id}}">
+                <input type="hidden" value="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="wishlist_url_{{$nhieubaiviet->id}}">
+                <input type="hidden" value="{{$nhieubaiviet->user->name}}" class="wishlist_tacgia_{{$nhieubaiviet->id}}">
+                <input type="hidden" value="{{route('tacgia',['slug'=>$nhieubaiviet->tacgia_slug])}}" class="wishlist_tacgia_url_{{$nhieubaiviet->id}}">
+                <input type="hidden" value="{{date('d-m-Y', strtotime($nhieubaiviet->created_at));}}" class="wishlist_created_{{$nhieubaiviet->id}}">
+                <input type="hidden" value=" {{$nhieubaiviet->views}}" class="wishlist_view_{{$nhieubaiviet->id}}">
                 <div class="col-12 col-md-6 col-lg-4">
                     <!-- Single Blog Post -->
                     <div class="single-blog-post">
                         <!-- Post Thumbnail -->
                         <div class="post-thumbnail">
-                            <a href="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="headline">
-                                <img src="{{asset('public/uploads/blog/'.$nhieubaiviet->image)}}" style="height:385px" alt="">
+                            <a data-id="{{$nhieubaiviet->id}}" class="btn-blog" href="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="headline">
+                                <img src="{{asset('public/uploads/blog/'.$nhieubaiviet->image)}}" style="height:385px" alt=""  class="btn-blog wishlist_image_{{$nhieubaiviet->id}}">
                             </a>
+                            <div class="post-cta">
+                                @foreach($nhieubaiviet->thuocnhieudanhmucblog as $thuocdanh)
+                                    <a href="{{route('category',$thuocdanh->slug_danhmuc)}}" style="text-decoration: none;">{{ $thuocdanh->tendanhmuc }}</a>
+                                @endforeach
+                            </div>
                         </div>
                         <!-- Post Content -->
                         <div class="post-content">
-                            <a href="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="headline">
+                            <a data-id="{{$nhieubaiviet->id}}" class="btn-blog" href="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="headline" style="color: inherit; text-decoration: none; position: relative;">
                                 <h5>{{$nhieubaiviet->tenblog}}</h5>
                             </a>
                             <p>{{$nhieubaiviet->tomtat}}</p>
@@ -142,6 +156,35 @@
                         </div>
                     </div>
                 </div>
+                @else
+                <div class="col-12 col-md-6 col-lg-4">
+                    <!-- Single Blog Post -->
+                    <div class="single-blog-post">
+                        <!-- Post Thumbnail -->
+                        <div class="post-thumbnail">
+                            <a class="btn-blog" href="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="headline">
+                                <img src="{{asset('public/uploads/blog/'.$nhieubaiviet->image)}}" style="height:385px" alt="" >
+                            </a>
+                            <div class="post-cta">
+                                @foreach($nhieubaiviet->thuocnhieudanhmucblog as $thuocdanh)
+                                    <a href="{{route('category',$thuocdanh->slug_danhmuc)}}" style="text-decoration: none;">{{ $thuocdanh->tendanhmuc }}</a>
+                                @endforeach
+                            </div>
+                        </div>
+                        <!-- Post Content -->
+                        <div class="post-content">
+                            <a href="{{route('bai_viet',$nhieubaiviet->slug_blog)}}" class="headline" style="color: inherit; text-decoration: none; position: relative;">
+                                <h5>{{$nhieubaiviet->tenblog}}</h5>
+                            </a>
+                            <p>{{$nhieubaiviet->tomtat}}</p>
+                            <!-- Post Meta -->
+                            <div class="post-meta">
+                                <p><a href="{{route('tacgia',['slug'=>$nhieubaiviet->tacgia_slug])}}" class="post-author">{{$nhieubaiviet->user->name}}</a> on <a href="#" class="post-date">{{$nhieubaiviet->created_at}}</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
                 @endif
                 @endforeach
             @endforeach
@@ -190,9 +233,11 @@
                             </div>
                         @endif
                     </div>
-                    <div id="comment">
-                        @include('pages.list-comment')
-                    </div>
+                    @if(Auth::user())
+                        <div id="comment">
+                            @include('pages.list-comment')
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>          

@@ -65,6 +65,7 @@
         </style>
         <!-- ***** Footer Area Start ***** -->
     <footer class="footer-area">
+        <input type="hidden" value="{{Auth::check() ? Auth::user()->name : ''}}" id="user_auth">
         <div class="container">
             <div class="row">
                 <div class="col-12 col-md-4">
@@ -206,6 +207,94 @@
         });
     </script>
 
+    <script>
+    function view(){
+            if(localStorage.getItem('wishlist_blog')!=null){
+                var data = JSON.parse(localStorage.getItem('wishlist_blog'));
+                var user = $('#user_auth').val();
+                    for(i=0; i<data.length; i++){
+                        var id = data[i].id;
+                        var auth_name=data[i].auth_name;
+                        // console.log(user);
+                        var tenblog = data[i].tenblog;
+                        var tomtat = data[i].tomtat;
+                        var images = data[i].images;
+                        var url = data[i].url;
+                        var tacgia = data[i].tacgia;
+                        var tacgia_url = data[i].tacgia_url;
+                        var created = data[i].created;
+                        var view = data[i].view;
+                        if(user==auth_name){
+                            // alert(user);
+                            $('#row_wishlist').append(`<div 
+                            class="single-blog-post post-style-4 d-flex align-items-center wow fadeInUpBig load" data-wow-delay="0.2s"><div 
+                            class="post-thumbnail"><a href="`+url+`" class="headline"><img 
+                            src="`+images+`" style="height: 150px;"></a></div><div class="post-content"><a 
+                            href="`+url+`" class="headline" style="color: inherit; text-decoration: none; position: relative;"><h5>`+tenblog+`</h5></a><p>`+tomtat+`</p><div class="post-meta"><div class="row"><div class="col-10"><p><a href="`+tacgia_url+`" class="post-author" style="color: inherit; text-decoration: none; position: relative;">`+tacgia+`</a> on <a class="post-date" style="color: inherit; text-decoration: none; position: relative;">`+created+`</a></p></div><div class="col-2"><i class="fa fa-eye" aria-hidden="true">`+view+`</i></div></div></div></div></div>`);
+                        }
+                    }           
+            }
+        }
+        view();
+
+        function dele_data(){
+            var hourse = 24*7;
+            var now = new Date().getTime();
+            var wishlist_blog = localStorage.getItem('wishlist_blog');
+            if(wishlist_blog==null){
+                localStorage.setItem('setupTime', now)
+            }else{  
+                var setupTime = localStorage.getItem('setupTime');
+                if(now - setupTime > hourse*60*60*1000){
+                    localStorage.setItem('wishlist_blog',[]);
+                }
+            }
+        }
+        dele_data();
+
+        $('.btn-blog').click(function(){
+            var id = $(this).data('id');
+            var auth_name = $('.wishlist_auth_'+id).val();
+            var tenblog = $('.wishlist_tenblog_'+id).val();
+            var tomtat = $('.wishlist_tomtat_'+id).val();
+            var images = $('.wishlist_image_'+id).attr('src');
+            var url = $('.wishlist_url_'+id).val();
+            var tacgia = $('.wishlist_tacgia_'+id).val();
+            var tacgia_url = $('.wishlist_tacgia_url_'+id).val();
+            var created = $('.wishlist_created_'+id).val();
+            var view = $('.wishlist_view_'+id).val();
+            // alert(images);
+
+            var newItem = {
+                'id':id,
+                'auth_name':auth_name,
+                'tenblog':tenblog,
+                'tomtat':tomtat,
+                'images':images,
+                'url':url,
+                'tacgia':tacgia,
+                'tacgia_url':tacgia_url,
+                'created':created,
+                'view':view,
+            }
+            if(localStorage.getItem('wishlist_blog')==null){
+                localStorage.setItem('wishlist_blog','[]');
+            }
+
+            var old_data = JSON.parse(localStorage.getItem('wishlist_blog'));
+    
+            var matches = $.grep(old_data, function(obj){
+                return obj.id == id;
+            })
+            if(matches.length){
+                alert('bài viết bạn đã xem');
+            }else{
+                old_data.push(newItem);
+            }
+            localStorage.setItem('wishlist_blog', JSON.stringify(old_data));
+
+        })
+    </script>
     @yield('scripts_blog')
     @yield('comment_script')
     @livewireScripts

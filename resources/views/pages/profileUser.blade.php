@@ -137,6 +137,35 @@
                                 <location-selector :address="{{json_encode($userAddress)}}"></location-selector>
                             </div>
                             <button name="themuser" type="submit" class="btn btn-primary">Cập Nhật User</button>
+                            <button  data-toggle="modal" data-target="#exampleModal4" type="button" class="btn btn-danger">Xóa tài khoản</button>
+                            <div class="modal fade" id="exampleModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel4" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel4"><span style="margin: 0px 93px;">Bạn muốn xóa tài khoản ?</span></h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <p style="padding-left: 15px;margin-left: 10px; color:black">Người dùng khác vẫn có thể thấy ý kiến và lượt thích của bạn.</p>
+                                      <p style="padding-left: 15px;margin-left: 10px; color:black">Tất cả tin đã lưu và lịch sử đọc sẽ bị xóa.</p>
+                                      <h6 style="padding-left: 15px;margin-left: 10px;">Để xoá tài khoản bạn cần xác nhận bằng mật khẩu</h6>
+                                      <div class="input-group" style="margin: 0px 90px;" >
+                                        <div class="input-group-prepend">
+                                            <input style="border-radius: 20px; display:none" type="email" name="email" class="form-control" id="email" placeholder="điền vào email" value="{{Auth::user()->email}}">
+                                            <input id="password" type="password" class="form-control" name="password" placeholder="Nhập lại mật khẩu cũ" required>
+                                        </div>
+                                        <span class="input-group-text" id="basic-addon1"><i onclick="myfunctionss()" class="fa fa-eye" aria-hidden="true"></i></span>
+                                    </div>
+                             
+                                    </div>
+                                    <div class="modal-footer">
+                                    <a id="btn-deleUser" type="button" style="width: 100%;margin: 0 20px 0 0;isplay: block;border-radius: 3px;height: 48px;line-height:40px;text-align: center;cursor: pointer;border: none;font-size: 15px;color: #fff;font-weight: bold;" class="btn btn-danger deleUser" >Xóa</a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                         </form>
                     </div>
                 </div>
@@ -145,5 +174,42 @@
     </div>
      </div>
     <br>
-    
+@endsection
+
+@section('scripts_blog')
+<script type="text/javascript">
+    var n = true;
+    function myfunctionss(){
+        if(n){
+            document.getElementById("password").type = "text";
+            n = false;
+        }else{
+            document.getElementById("password").type = "password";
+            n = true;
+        }
+    }
+</script>
+
+<script>
+    $('#btn-deleUser').on('click', function(event){
+        event.preventDefault();
+        var _loginUrl = "{{route('dele_account')}}";
+        var _token = "{{csrf_token() }}";
+        var email = $('#email').val();
+        var password = $('#password').val();
+        $.ajax({
+            type: "POST",    
+            dataType: "json",
+            url: _loginUrl,
+            data: {
+                email:email,
+                password:password,
+                _token:_token,
+            },
+            success: function(res){
+                window.location.href="/home-new" ;
+            }
+        });
+    });
+</script>
 @endsection

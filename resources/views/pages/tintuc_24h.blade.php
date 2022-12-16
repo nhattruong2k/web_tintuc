@@ -94,20 +94,28 @@
                         <div class="tab-content" id="myTabContent">
                             <div id="blogs">
                                 @foreach($posts as $bai)
+                                @if(Auth::user())
+                                <input type="hidden" value="{{$bai->tenblog}}" class="wishlist_tenblog_{{$bai->id}}">
+                                <input type="hidden" value="{{Auth::user()->name}}" class="wishlist_auth_{{$bai->id}}">
+                                <input type="hidden" value="{{$bai->tomtat}}" class="wishlist_tomtat_{{$bai->id}}">
+                                <input type="hidden" value="{{route('bai_viet',$bai->slug_blog)}}" class="wishlist_url_{{$bai->id}}">
+                                <input type="hidden" value="{{$bai->user->name}}" class="wishlist_tacgia_{{$bai->id}}">
+                                <input type="hidden" value="{{route('tacgia',['slug'=>$bai->tacgia_slug])}}" class="wishlist_tacgia_url_{{$bai->id}}">
+                                <input type="hidden" value="{{date('d-m-Y', strtotime($bai->created_at));}}" class="wishlist_created_{{$bai->id}}">
+                                <input type="hidden" value=" {{$bai->views}}" class="wishlist_view_{{$bai->id}}">
                                 <!-- Single Blog Post -->
-                                    {{-- @if($bai->created_at->diffForHumans()) --}}
                                         <div>
                                             <span>{{$bai->created_at->diffForHumans() }}</span>
                                             <div class="single-blog-post post-style-4 d-flex align-items-center wow fadeInUpBig load mt-3" data-wow-delay="0.2s">
                                                 <!-- Post Thumbnail -->
                                                 <div class="post-thumbnail">
-                                                    <a href="{{route('bai_viet',$bai->slug_blog)}}" class="headline">
-                                                        <img src="{{asset('public/uploads/blog/'.$bai->image)}}" alt="">
+                                                    <a data-id="{{$bai->id}}" class="btn-blog" href="{{route('bai_viet',$bai->slug_blog)}}" class="headline">
+                                                        <img src="{{asset('public/uploads/blog/'.$bai->image)}}" alt="" class="btn-blog wishlist_image_{{$bai->id}}">
                                                     </a>
                                                 </div>
                                                 <!-- Post Content -->
                                                 <div class="post-content">
-                                                    <a href="{{route('bai_viet',$bai->slug_blog)}}" class="headline" style="color: inherit; text-decoration: none">
+                                                    <a data-id="{{$bai->id}}" class="btn-blog" href="{{route('bai_viet',$bai->slug_blog)}}" class="headline" style="color: inherit; text-decoration: none">
                                                         <h5>{{$bai->tenblog}}</h5>
                                                     </a>
                                                     <p>{{$bai->tomtat}}</p>
@@ -122,13 +130,43 @@
                                                             <i class="fa fa-eye" aria-hidden="true"> {{$bai->views}} </i>
                                                         </div>
                                                     </div>
-                                                    
                                                 </div>
                                             </div>
                                         </div>
                                         <hr>
+                                    @else
+                                    <div>
+                                        <span>{{$bai->created_at->diffForHumans() }}</span>
+                                        <div class="single-blog-post post-style-4 d-flex align-items-center wow fadeInUpBig load mt-3" data-wow-delay="0.2s">
+                                            <!-- Post Thumbnail -->
+                                            <div class="post-thumbnail">
+                                                <a href="{{route('bai_viet',$bai->slug_blog)}}" class="headline">
+                                                    <img src="{{asset('public/uploads/blog/'.$bai->image)}}" alt="">
+                                                </a>
+                                            </div>
+                                            <!-- Post Content -->
+                                            <div class="post-content">
+                                                <a href="{{route('bai_viet',$bai->slug_blog)}}" class="headline" style="color: inherit; text-decoration: none">
+                                                    <h5>{{$bai->tenblog}}</h5>
+                                                </a>
+                                                <p>{{$bai->tomtat}}</p>
+                                                <!-- Post Meta -->
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <div class="post-meta">
+                                                            <p><a href="{{route('tacgia',['slug'=>$bai->tacgia_slug])}}" class="post-author" style="color: inherit; text-decoration: none; position: relative;">{{$bai->user->name}}</a> on <a href="#" class="post-date" style="color: inherit; text-decoration: none; position: relative;">{{date('d-m-Y', strtotime($bai->created_at));}}</a></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <i class="fa fa-eye" aria-hidden="true"> {{$bai->views}} </i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    @endif
                                 @endforeach
-                            {{-- @elseif($) --}}
                             </div>
                         </div>
                         @endif

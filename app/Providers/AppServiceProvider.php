@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
             $count_notifi = FacadesDB::table('notifications')->count();
             $count_comments = Comment::count();
             $comment_parents = Comment::where('reply_id',0)->where('kichhoat','=',0)->count();
+            // $phantramcomments = round(($comment_parents*100)/$count_comments);
             $view->with(compact('count_blog', 'count_user', 'count_notifi','count_like','count_comments'));
         });
         Carbon::setLocale('vi');

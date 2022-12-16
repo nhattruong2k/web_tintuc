@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Blogger;
 
 class Province extends Model
 {
+    protected $table = 'provinces';
     protected $fillable = [
         'name', 'gso_id',
     ];
@@ -19,5 +21,9 @@ class Province extends Model
 
     public function user(){
         return $this->hasOne(User::class);
+    }
+
+    public function blog(){
+        return $this->hasOne(Blogger::class);
     }
 }

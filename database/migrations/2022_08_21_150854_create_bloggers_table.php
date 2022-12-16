@@ -21,9 +21,10 @@ class CreateBloggersTable extends Migration
             $table->string('user_id');
             $table->string('tomtat');
             $table->string('image');
-            $table->integer('danhmuc_id');
-            $table->integer('kichhoat');
+            // $table->integer('danhmuc_id');
+            $table->integer('kichhoat')->default('0');
             $table->integer('blog_noibat')->default('0');
+            $table->integer('news_region_id')->nullable();
             $table->integer('views')->default('0');
             $table->timestamps();
         });

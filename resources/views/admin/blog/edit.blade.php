@@ -83,16 +83,17 @@
                         <div class="mb-3">
                             <label for="exampleInputEmail1">Danh Mục Blog</label>
                             <br>
-                            @foreach($danhmuc as $key=>$muc)
-                                <div class="form-check-inline mt-2">
-                                    <input
-                                    @if( $thuocdanhmuc->contains($muc->id) ) 
-                                            checked 
-                                        @endif
-                                        name="danhmuc[]" type="checkbox" id="danhmuc_{{ $muc->id }}" value="{{ $muc->id }}">
-                                    <label class="form-check-label" for="danhmuc_{{$muc->id }}">{{ $muc->tendanhmuc }}</label>
-                                </div>
-                            @endforeach
+                            <select name="danhmuc[]" class="custom-select edit_select_cate" id="blog_id" data-blog="{{$blog->id}}">
+                                <option value="">Danh mục cha</option>
+                                @foreach($danhmuc as $muc)
+                                    <option 
+                                    @if($thuocdanhmuc->contains($muc->id))
+                                        selected
+                                    @endif
+                                    value="{{ $muc->id }}">{{$muc->tendanhmuc}}</option>
+                                @endforeach
+                            </select>
+                            <div id="edit_cate_parent" class="mt-3"></div>
                         </div>
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Tag Bài Viết</label>
@@ -108,8 +109,8 @@
                                 >
                         </div>
                         <div class="mb-3">
-                            <label for="exampleInputEmail1">Blog nổi bật/hot:</label>
-                            <select class="custom-select" name="blognoibat">
+                            <label for="exampleInputEmail1">Blog nổi bật/hot :</label>
+                            <select class="custom-select" name="blog_noibat">
                                 @if ($blog->blog_noibat==0)
                                     <option selected value="0">Blog mới</option>
                                     <option value="1">Blog nổi bật</option>
@@ -119,7 +120,6 @@
                                 @endif
                             </select>
                         </div>
-                        
                         <br>
                         <button name="themblog" type="submit" class="btn btn-primary">Cập Nhật Blog</button>
                       </form>
@@ -129,3 +129,31 @@
     </div>
 </div>
 @endsection
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
+<script>
+    $(document).ready(function() {
+       cate_child();
+       $('select.edit_select_cate').change(function() {
+            cate_child();
+       })
+       function cate_child(){
+        var blog_id = $('#blog_id').data('blog');
+            var cate_id = $('select.edit_select_cate').children("option:selected").val();
+            var _token = $("input[name=_token]").val();
+            var _url = "{{route('edit_cate_blog')}}";
+            $.ajax({
+                   type: "post",    
+                   dataType: "json",
+                   url: _url,
+                   data: {
+                        blog_id: blog_id,
+                        cate_id: cate_id, 
+                        _token:_token
+                   },
+                   success: function(data){
+                       $('#edit_cate_parent').html(data);
+                   }
+           });
+       }
+   })
+</script>

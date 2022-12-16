@@ -22,6 +22,29 @@
                          {{ session('success') }}
                         </div>
                      @endif
+                     <div class="dt-buttons"> 
+                        <div class="row">
+                            <div class="col-4" style="max-width: 23.333333%;">
+                                <form action="{{url('import-csv')}}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <label for="user-file">
+                                        <div class="btn sbold green"> 
+                                            <i class="fa fa-download" aria-hidden="true"></i> Excel
+                                        </div>
+                                        <input id="user-file" type="file" name="file" style="display:none" class="hidden" accept=".xlsx, .xls, .csv, .ods">
+                                    </label>
+                                <button type="submit" value="Import Excel" name="import_csv" class="button button2">Nhập Excel</button>        
+                                </form>
+                            </div>
+                            <div class="col-8">
+                                <form action="{{url('export-csv')}}" method="POST">
+                                    @csrf
+                                 <input type="submit" value="Xuất Excel" name="export_csv" class="button button2">
+                                </form>
+                            </div>
+                        </div>
+                     </div>
+              
                     <table class="table table-sm table-bordered table-striped">
                         <thead class="table-light">
                           <tr>
@@ -96,6 +119,26 @@
     </div>
 </div>
 @endsection
+<style type="text/css">
+    .button{
+     background-color: #4dc1bdfc;
+    border: none;
+    color: white;
+    padding: 5px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    border-radius: 50px
+    }
+    .button2:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+        }
+</style>
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
 <script>
     $(document).ready(function() {

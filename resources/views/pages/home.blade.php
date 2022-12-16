@@ -25,7 +25,11 @@
                                     <p>{{$key}}</p>
                                 </div>
                                 <div class="post-title">
+                                    @if(Auth::user())
+                                    <a data-id="{{$blog->id}}" class="btn-blog" href="{{route('bai_viet',$blog->slug_blog)}}">{{$blog->tenblog}}</a>
+                                    @else
                                     <a href="{{route('bai_viet',$blog->slug_blog)}}">{{$blog->tenblog}}</a>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -47,7 +51,6 @@
             </div>
             @include('pages.danhmuc_blog')
             @include('pages.worldLatestArticles')
-
         </div>
     </div>
 </div>

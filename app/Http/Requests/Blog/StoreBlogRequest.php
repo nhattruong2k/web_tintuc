@@ -26,7 +26,7 @@ class StoreBlogRequest extends FormRequest
         return [
                 'tenblog'=>'required|unique:bloggers|max:255',
                 'tomtat'=>'required|max:255',
-                'blognoibat'=>'required',
+                'blog_noibat'=>'required',
                 'image'=>'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048|
                  dimensions:min_width=100, min_height=100, max_width=2000,max_height=2000',
                 'content'=>'required',
@@ -39,7 +39,7 @@ class StoreBlogRequest extends FormRequest
                 'tenblog.unique'=>'Xin vui lòng điền tên bài viết mới ',
                 'tenblog.required'=>'Xin vui lòng điền tên bài viết',
                 'tomtat.required'=>'Xin vui lòng điền tóm tắt',
-                'blognoibat.required'=>'Xin vui lòng chọn blog nổi bật',
+                'blog_noibat.required'=>'Xin vui lòng chọn blog nổi bật',
                 'image.required'=>'Xin vui lòng chọn hình ảnh',
                 'content.required'=>'Xin vui lòng điền nội dung',
         ];

@@ -63,7 +63,7 @@ class NewsController extends Controller
                         <div class="col-3">
                             <div class="thumbs">
                                 <a href="'.$route_blog.'">
-                                    <img class="img_blog" src="'.url('public/uploads/blog/'.$row->image.'').'">
+                                    <img class="img_blog" src="'.url('public/uploads/blog/'.$row->image.'').'" style="height: 55px;">
                                     </img>
                                 </a>
                             </div>
@@ -106,7 +106,7 @@ class NewsController extends Controller
         }
 
         $blog_hot = Blogger::with('thuocnhieudanhmucblog')->orderBy('id','desc')->where('kichhoat', 1)->where('blog_noibat',1)->orWhere('blog_noibat',0)->get();
-        $blogger = Blogger::with('thuocnhieudanhmucblog','user')->orderBy('id','desc')->where('kichhoat', 1)->get();      
+        $blogger = Blogger::with('thuocnhieudanhmucblog','user')->orderBy('id','desc')->where('kichhoat', 1)->get();
         // $recentBlog = recentlyViewed::with('blog')->orderBy('id','desc')->take(4)->get();
 
         function slugify($str) { 
@@ -126,6 +126,9 @@ class NewsController extends Controller
                 $blog->tacgia_slug = slugify($blog->user->name);
         }
     
+        foreach($blog_hot as $blog){
+            $blog->tacgia_slug = slugify($blog->user->name);
+        }
         foreach($danh_blog as $danh){
             foreach($danh->nhieublog as $blog){
                 $blog->tacgia_slug = slugify($blog->user->name);
@@ -155,6 +158,7 @@ class NewsController extends Controller
         $data->subDay();
         $data->format("Y-m-d");
         $posts = Blogger::orderBy('id','desc')->whereDate('created_at','>=', $data)->where('kichhoat', 1)->paginate(5);
+
         function slugify($str) { 
             $str = trim(mb_strtolower($str)); 
             $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
@@ -172,7 +176,10 @@ class NewsController extends Controller
         foreach($posts as $blog){
              $blog->tacgia_slug = slugify($blog->user->name);
         }
-        
+        foreach($blog_hot as $blog){
+            $blog->tacgia_slug = slugify($blog->user->name);
+        }
+        // dd($posts);
         return view('pages.tintuc_24h')->with(compact('danhmuc','blogger','blog_hot','posts'));
     }
 
@@ -243,6 +250,7 @@ class NewsController extends Controller
     public function bai_viet($slug){
         $danhmuc = DanhMuc::orderBy('id','desc')->where('parent_id','0')->with('children')->where('kichhoat', 1)->get();
         $blog_hot = Blogger::with('thuocnhieudanhmucblog')->orderBy('id','desc')->where('kichhoat', 1)->get();
+        // dd($blog_hot);
         $blogger = Blogger::with('thuocnhieudanhmucblog')->orderBy('id','desc')->where('kichhoat', 1)->get();
         $baiviet = Blogger::with('thuocnhieudanhmucblog')->where('slug_blog',$slug)->where('kichhoat', 1)->first();
         // dd($baiviet->id);
@@ -259,8 +267,7 @@ class NewsController extends Controller
         $like = likeDislike::where('blog_id', $baiviet->id)->where('like',1)->count();
         $user = new User();
         $like_count = likeDislike::where('user_id',$user )->where('blog_id', $baiviet)->count();
-        $comment = Comment::with('replies')->orderBy('id','desc')->where('blog_id', $baiviet->id)->where('reply_id','=',0)->where('kichhoat','=',0)->get(); 
-        
+        $comment = Comment::with('replies','user')->orderBy('id','desc')->where('blog_id', $baiviet->id)->where('reply_id','=',0)->where('kichhoat','=',0)->get(); 
         $countComments = Comment::where('blog_id', $baiviet->id)->count(); 
         
         // set session for recently_vieweds
@@ -293,7 +300,11 @@ class NewsController extends Controller
             $str = preg_replace('/([\s]+)/', '-', $str); 
         return $str; 
         }
-        $baiviet->tacgia_slug = slugify($baiviet->user->name);  
+        $baiviet->tacgia_slug = slugify($baiviet->user->name);
+        foreach($blog_hot as $blog){
+            $blog->tacgia_slug = slugify($blog->user->name);
+        }
+        
         foreach($cungdanhmuc as $danh){
             foreach($danh->nhieublog as $nhieubaiviet){
                 $nhieubaiviet->tacgia_slug = slugify($nhieubaiviet->user->name);  
@@ -305,32 +316,9 @@ class NewsController extends Controller
 
     public function recentViewed(){
         $danhmuc = DanhMuc::orderBy('id','desc')->where('parent_id','0')->with('children')->where('kichhoat', 1)->get();
-        $user = User::find(auth()->user()->id);
-        date_default_timezone_set('Asia/Ho_Chi_Minh');
-        // dd($dt);
-        $data = Carbon::now();
-        $data->subWeek();
-        $data->format("Y-m-d");
-        $recentBlog = recentlyViewed::with('blog','user')->orderBy('id','desc')->where('user_id',$user->id)->whereDate('created_at','>',$data)->get();
-        function slugify_blogger($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
-        foreach($recentBlog as $blog){
-            $blog->tacgia_slug = slugify_blogger($blog->user->name);
-       }
-        return view('pages.recentView')->with(compact('danhmuc','recentBlog'));
+        return view('pages.recentView')->with(compact('danhmuc'));
     }
-
+    
     public function view(Request $request){
         $blog_id = $request['blog_id'];
         $sessionKey = 'blog_' . $blog_id;
@@ -430,7 +418,6 @@ class NewsController extends Controller
         $new_image = $name_image.rand (0,99).'.'.$get_image->getClientOriginalExtension(); //Trả về đuôi mở rộng của file
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
-
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
         $blog->save();
         $blog->thuocnhieudanhmucblog()->attach($data['danhmuc']);
@@ -438,6 +425,35 @@ class NewsController extends Controller
         return redirect('/post/create')->with('success', 'Thêm blog thành công');
     }
 
+    public function cate_blog(Request $request){
+        $query = $request->get('cate_id');
+        $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
+
+        $output = '<label for="">Danh muc con</label><br>
+        <div class="form-check-inline">
+        ';
+        foreach($data as $val){
+            $output .= '<div style="margin: 0px 5px 0px 5px;;">
+            <input class="form-check-input" name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
+            <label style="color:black" class="form-check-label" for="danhmuc_'.$val->id.'">'.$val->tendanhmuc.'</label>
+            </div>
+            ';
+        };
+        $output .= '</div>';
+        // dd( $output);
+        return response()->json($output);
+    }
+
+    public function dele_account(Request $request){
+        $data = $request->only('email','password');
+        $check_login = Auth::attempt($data);
+        if($check_login){
+            $user = User::find(Auth::user()->id);
+            $user->delete();
+            return response()->json(['data'=> $user]);
+        };  
+    }
+    
     public function profileUser(){
         $danhmuc = DanhMuc::orderBy('id','desc')->where('parent_id','0')->with('children')->where('kichhoat', 1)->get();
         $user = User::findOrFail(auth()->user()->id);

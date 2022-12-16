@@ -18,6 +18,7 @@ class LoadMoreBlogList extends Component
     public function render()
     {
         $blogger = Blogger::latest()->where('kichhoat', 1)->paginate($this->perPage);
+
         $this->emit('blogStore');
         function slugify($str) { 
             $str = trim(mb_strtolower($str)); 

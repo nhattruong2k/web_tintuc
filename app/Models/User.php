@@ -34,6 +34,11 @@ class User extends Authenticatable
         return $this->hasMany(Blogger::class);
     }
 
+    public function comment()
+    {
+        return $this->belongsTo(Comment::class);
+    }
+
     public function vieweds()
     {
         return $this->hasMany(recentlyViewed::class);

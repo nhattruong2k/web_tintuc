@@ -27,9 +27,15 @@ class UserController extends Controller
         // $user = User::find(1);
         // $user->assignRole('admin');
 
-        //auth()->user()->assignRole('admin');
-        // Role::create(['name' => 'writer']);
+        // auth()->user()->assignRole('admin');
+        // Role::create(['name' => 'blogger']);
+        // Permission::create(['name' => 'add articles']);
         // Permission::create(['name' => 'add category']);
+        // Permission::create(['name' => 'edit articles']);
+        // Permission::create(['name' => 'edit category']);
+        // Permission::create(['name' => 'delete articles']);
+        // Permission::create(['name' => 'delete category']);
+
         // $role = Role::find(1);
         // $permission = Permission::find(['1','2','3','4','5','6',]);
         // $role->givePermissionTo($permission);

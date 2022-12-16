@@ -20,10 +20,10 @@ class Blogger extends Model
     ];
     protected $fillable = [
         'tenblog', 'tomtat','image',
-        'kichhoat', 'slugblog',
+        'kichhoat', 'slug_blog',
         'blog_noibat','views','content',
         'created_at','updated_at',
-        'tagbaiviet','user_id'
+        'tagbaiviet','user_id',
     ];
 
     // public function danhmuc(){
@@ -40,6 +40,10 @@ class Blogger extends Model
     }
     public function vieweds(){
         return $this->hasMany(recentlyViewed::class);
+    }
+
+    public function province(){
+        return $this->hasOne(Province::class,'id','news_region_id');
     }
     // // Dislikes
     // public function dislikes(){

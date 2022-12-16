@@ -39,6 +39,9 @@ Route::get('/location/province/{province}/districts', [LocationController::class
 Route::get('/location/district/{district}/wards', [LocationController::class, 'getWards'])->name('getWards');
 
 Route::group(['middleware' =>['auth','role:admin']], function(){
+    Route::post('/export-csv',[DanhMucController::class,'export_csv']);
+    Route::post('/import-csv',[DanhMucController::class,'import_csv']);
+    
     Route::get('/see-like', [LikeController::class, 'like'])->name('see-like'); 
     Route::get('/staff_user', [ManagerUserController::class,'staff_user'])->name('staff_user');
     Route::get('/phan-vaitro/{id}', [ManagerUserController::class, 'phanvaitro'])->name('vaitro');
@@ -76,6 +79,8 @@ Route::group(['middleware' =>['auth','role:admin']], function(){
 
 Route::group(['middleware'=>['auth','role:admin|publisher|writer|editer|deleter']], function(){
     Route::resource('/blog', BloggerController::class);
+    Route::post('blog/cate_blog', [BloggerController::class,'cate_blog'])->name('cate_blog');
+    Route::post('blog/edit_cate_blog', [BloggerController::class,'edit_cate_blog'])->name('edit_cate_blog');
     Route::get('content_detail/{id}',[BloggerController::class,'content_detail']);
     Route::post('/kichhoat', [BloggerController::class,'kichhoat']);
     Route::resource('/danhmuc', DanhMucController::class);
@@ -88,6 +93,7 @@ Route::group(['middleware'=>['auth','role:admin|publisher|writer|editer|deleter'
 Route::group(['middleware'=>['auth','role:blogger']], function(){
     Route::get('/post/create',[NewsController::class,'thembaiviet']);
     Route::post('/post/store',[NewsController::class,'luubaiviet'])->name('post.store');
+    Route::post('/post/cate_blog',[NewsController::class,'cate_blog'])->name('post.cate_blog');
 });
 
 Route::group(['middleware'=>'auth','role:blogger|viewer'], function(){
@@ -124,6 +130,7 @@ Route::get('/livewire',[NewsController::class,'livewire'])->name('livewire');
 Route::get('/tin-tuc-24h', [NewsController::class,'tin_tuc24h'])->name('tuc24h');
 Route::post('/view',[NewsController::class,'view'])->name('view');
 Route::get('tim-kiem', [NewsController::class,'tim_kiem'])->name('tim_kiem');
+Route::post('dele_account', [NewsController::class,'dele_account'])->name('dele_account');
 Route::get('home-new/{slug}', [NewsController::class,'danh_muc'])->name('category');
 Route::get('home-new/{slug_parent}/{slug}', [NewsController::class,'danh_muc2'])->name('category22');
 Route::get('{slug}', [NewsController::class,'bai_viet'])->name('bai_viet');

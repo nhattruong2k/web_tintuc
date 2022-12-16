@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use App\Models\Thuocdanhmuc;
 use Illuminate\Support\Carbon;
 use  App\Http\Requests\Blog\StoreBlogRequest;
-use App\Http\Requests\Blog\UpdateBlogRequest; 
+use App\Http\Requests\Blog\UpdateBlogRequest;
+use App\Models\Province;
+
 class BloggerController extends Controller
 {
     /**
@@ -47,8 +49,30 @@ class BloggerController extends Controller
      */
     public function create()
     {
-        $danhmuc = DanhMuc::orderBy('id','desc')->where('kichhoat', 1)->get();
-        return view('admin.blog.create')->with(compact('danhmuc'));
+        $danhmuc = DanhMuc::with('children')->orderBy('id','desc')->where('kichhoat', 1)->where('parent_id',0)->get();
+        
+        $province_all = Province::whereIn('name',['Thành Phố Hà Nội','Thành phố Đà Nẵng','Thành phố Hồ Chí Minh'])->get();
+        // dd($province_all);
+        return view('admin.blog.create')->with(compact('danhmuc','province_all'));
+    }
+
+    public function cate_blog(Request $request){
+        $query = $request->get('cate_id');
+        $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
+
+        $output = '<label for="">Danh muc con</label><br>
+        <div class="form-check-inline">
+        ';
+        foreach($data as $val){
+            $output .= '<div style="margin: 0px 5px 0px 5px;;">
+            <input class="form-check-input" name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
+            <label class="form-check-label" for="danhmuc_'.$val->id.'">'.$val->tendanhmuc.'</label>
+            </div>
+            ';
+        };
+        $output .= '</div>';
+        // dd( $output);
+        return response()->json($output);
     }
 
     /**
@@ -59,7 +83,6 @@ class BloggerController extends Controller
      */
     public function store(StoreBlogRequest $request)
     {
-        // dd($request->all());
         $blog = new Blogger(); 
         $blog->fill($data = $request->all());
         // dd($blog);
@@ -71,11 +94,8 @@ class BloggerController extends Controller
         $new_image = $name_image.rand (0,99).'.'.$get_image->getClientOriginalExtension(); //Trả về đuôi mở rộng của file
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
-
-        // foreach($data['danhmuc'] as $key=>$danh){
-        //     $blog->danhmuc_id = $danh[0];
-        // }
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
+        // dd($blog);
         $blog->save();
         $blog->thuocnhieudanhmucblog()->attach($data['danhmuc']);
         // dd($blog);
@@ -91,9 +111,8 @@ class BloggerController extends Controller
      */
     public function show($id)
     {
-        $blog = Blogger::with('thuocnhieudanhmucblog',)->findOrFail($id);
+        $blog = Blogger::with('thuocnhieudanhmucblog','province')->findOrFail($id);
         $tacgia= Blogger::with('user')->findOrFail($id);
-        // dd($tacgia);
         return view('admin.blog.view')->with(compact('blog','tacgia'));
     }
 
@@ -107,11 +126,41 @@ class BloggerController extends Controller
     {
         $blog = Blogger::with('user')->find($id);
         $thuocdanhmuc = $blog->thuocnhieudanhmucblog;
-        $danhmuc = DanhMuc::orderBy('id','desc')->where('kichhoat', 1)->get();
-        // dd($danhmuc);
+        // echo $thuocdanhmuc;
+        $danhmuc = DanhMuc::orderBy('id','desc')->where('kichhoat', 1)->where('parent_id',0)->get();
+    
         return view('admin.blog.edit')->with(compact('blog','thuocdanhmuc','danhmuc'));
     }
 
+    
+    public function edit_cate_blog(Request $request){
+        $blog_id = $request->get('blog_id');
+        $blog = Blogger::find($blog_id);
+        $thuocdanhmuc = $blog->thuocnhieudanhmucblog;
+        $array_cate = [];
+        foreach($thuocdanhmuc as $thuoc){
+           array_push($array_cate, $thuoc->id);
+        }
+        $query = $request->get('cate_id');
+        $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
+        $output = '<label for="">Danh muc con</label><br>
+        <div class="form-check-inline">
+        ';
+        foreach($data as $val){
+            $check = in_array($val->id,$array_cate) ? 'checked="checked"' : '';
+            $output .= '<div style="margin: 0px 5px 0px 5px;">
+        <input class="form-check-input" '.$check.'
+         
+        name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
+
+        <label class="form-check-label" for="danhmuc_'.$val->id.'">'.$val->tendanhmuc.'</label>
+        </div>
+        ';    
+    }
+        $output .= '</div>';
+        // dd( $output);
+        return response()->json( $output);
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -141,7 +190,6 @@ class BloggerController extends Controller
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
         }
-        
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
         // dd($blog);
         $blog->save();

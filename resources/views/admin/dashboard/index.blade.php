@@ -64,7 +64,7 @@
                   <div class="progress-bar" style="width: {{$phantramcomments}}%" ></div>
                 </div>
                 <span class="progress-description">
-                  {{$phantramcomments}}% Tăng trong 30 ngày
+                 {{$phantramcomments}} % Tăng trong 30 ngày
                 </span>
               </div>
             </div>

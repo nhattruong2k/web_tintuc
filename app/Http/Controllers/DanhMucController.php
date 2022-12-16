@@ -9,6 +9,10 @@ use  App\Http\Requests\DanhMuc\UpdateDanhMucRequest;
 use App\Notifications\TestNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
+use App\Imports\ExcelImports;
+use App\Exports\ExcelExports;
+use Excel;
+use App\Imports\Imports;
 
 class DanhMucController extends Controller
 {
@@ -120,5 +124,15 @@ class DanhMucController extends Controller
     {
         DanhMuc::find($id)->delete();
         return redirect()->back()->with('success', 'Xóa danh mục thành công');
+    }
+
+    public function export_csv(){
+        return Excel::download(new ExcelExports, 'danhmuc.xlsx');
+    }
+
+    public function import_csv(Request $request){
+        $path = $request->file('file')->getRealPath();
+        Excel::import(new Imports, $path);
+        return back();
     }
 }

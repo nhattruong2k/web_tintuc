@@ -76,12 +76,15 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputEmail1 mt-2">Danh Mục Blog *</label><br>
-                            @foreach($danhmuc as $key=>$muc)
-                            <div class="form-check-inline mt-2">
-                                    <input class="form-check-input" name="danhmuc[]" type="checkbox" id="danhmuc_{{ $muc->id }}" value="{{ $muc->id }}">
-                                    <label class="form-check-label" for="danhmuc_{{$muc->id }}">{{ $muc->tendanhmuc }}</label>
-                                </div>
-                            @endforeach
+                            <select name="danhmuc[]" class="custom-select select_cate">
+                                <option value="">Danh mục cha</option>
+                                @foreach($danhmuc as $muc)
+                                    <option value="{{ $muc->id }}">{{$muc->tendanhmuc}}</option>
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="_token" value="{{ csrf_token()}}">  
+                           <br>
+                            <div id="cate_parent" class="mt-3"></div>
                         </div>
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Tag Bài Viết</label>
@@ -98,7 +101,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="exampleInputEmail1">Blog nổi bật/hot *</label>
-                            <select class="custom-select" name="blognoibat">
+                            <select class="custom-select" name="blog_noibat">
                                 <option value="0">Blog mới</option>
                                 <option value="1">Blog hot</option>
                             </select>
@@ -111,3 +114,26 @@
     </div>
 </div>
 @endsection
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
+
+<script>
+     $(document).ready(function() {
+        $('select.select_cate').change(function() {
+            var cate_id = $(this).children("option:selected").val();
+            var _token = $("input[name=_token]").val();
+            var _url = "{{route('cate_blog')}}";
+            $.ajax({
+                    type: "post",    
+                    dataType: "json",
+                    url: _url,
+                    data: {
+                        cate_id: cate_id, 
+                        _token:_token
+                    },
+                    success: function(data){
+                        $('#cate_parent').html(data);
+                    }
+            });
+        })
+    })
+</script>
