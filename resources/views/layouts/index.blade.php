@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="userId" content="{{ Auth::check() ? Auth::user()->id : ''}}">
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>{{config('app.Name', 'Admin TinTuc')}}</title>
 
   <!-- Google Font: Source Sans Pro -->

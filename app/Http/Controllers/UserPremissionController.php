@@ -7,6 +7,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use redirect;
+
 class UserPremissionController extends Controller
 {
     /**
@@ -110,6 +111,19 @@ class UserPremissionController extends Controller
             $role->syncPermissions($data['permission']);
         }
         return redirect('userpermission')->with('success','Thêm quyền cho user thành công');
+    }
+    
+    public function extra_role(Request $request){
+        $data = $request->all();
+        $role = new Role();
+        $role->name = $data['text_role'];
+        $role->save();
+        return response()->json($role);
+    }
+
+    public function delete_role($id){
+        $dele_role = Role::find($id)->delete();
+        return response()->json($dele_role);
     }
 
     public function axtra_permission(Request $request){

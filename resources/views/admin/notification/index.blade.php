@@ -36,7 +36,7 @@
                         </thead>
                         <tbody> 
                             @foreach ( $notifications as $key=>$notification )
-                                    <tr>
+                                    <tr class="noti_{{$notification->id}}">
                                         <td scope="row"><span class="d-flex justify-content-center">{{ $key }}</span></td>
                                         <td scope="row"><span class="d-flex justify-content-center">{{ $notification->email }}</span></td>  
                                         <td scope="row"><span class="d-flex justify-content-center">{{ $notification->title }}</span></td>
@@ -45,11 +45,7 @@
                                         <td scope="row">
                                             <ul class="list-inline">
                                                 <li class="list-inline-item">
-                                                    <form action="{{ route('deletenotification.destroy',[$notification->id]) }}" method="POST" style="margin-left: 27px">
-                                                        @method('DELETE')
-                                                        @csrf
-                                                        <button onclick="return confirm('Bạn chắc chắn xóa danh mục này không')" class="btn btn-danger">Xóa</button>
-                                                    </form>
+                                                        <button class="btn btn-danger dele_noti" data-id="{{$notification->id}}">Xóa</button>
                                                 </li>
                                             </ul>
                                         </td>
@@ -64,3 +60,53 @@
     </div>
 </div>
 @endsection
+<style>
+    .div-none{
+        display: none !important;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+        $(document).ready(function(){
+        $('.dele_noti').on('click', function(){
+            var id = $(this).data('id');
+            var _urlDeleteNoti = '{{route("deletenotification.destroy", ":id")}}';
+            _urlDeleteNoti = _urlDeleteNoti.replace(":id", id);
+            var _token = "{{csrf_token() }}";
+            Swal.fire({
+                title: 'Bạn có muốn xóa bài viết này ?',
+                text: "",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Đóng'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "DELETE",    
+                        url: _urlDeleteNoti,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res){
+                            Swal.fire(
+                                'Xóa!',
+                                'Bài viết đã bị xóa.',
+                                'thành công'
+                            );
+                            const myTimeout = setTimeout(delete_role, 1500);
+                            function delete_role(){
+                                $('.noti_'+id).addClass('div-none');
+                            }
+                        }
+                    });
+                   
+                }
+            })
+        })
+    })
+</script>

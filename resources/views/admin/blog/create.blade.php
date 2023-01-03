@@ -87,6 +87,18 @@
                             <div id="cate_parent" class="mt-3"></div>
                         </div>
                         <div class="mb-3">
+                            <label for="exampleInputEmail1">Chọn khu vực</label>
+                            <select class="custom-select select_province" name="blog_province" >
+                                <option value="0">Chọn khu vực</option>
+                                @foreach($blog_province as $key=>$blog_provinces)
+                                    <option value="{{$blog_provinces->id}}">{{$blog_provinces->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div id="province" style="display:none"></div>
+
+                        <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Tag Bài Viết</label>
                             <br>
                             <input 
@@ -132,6 +144,23 @@
                     },
                     success: function(data){
                         $('#cate_parent').html(data);
+                    }
+            });
+        })
+        $('select.select_province').change(function(){
+            var province_id = $(this).children("option:selected").val();
+            var _token = $("input[name=_token]").val();
+            var _url = "{{route('blog.blog_province')}}";
+            $.ajax({
+                    type: "post",    
+                    dataType: "json",
+                    url: _url,
+                    data: {
+                        province_id: province_id, 
+                        _token:_token
+                    },
+                    success: function(data){
+                        $('#province').html(data)
                     }
             });
         })

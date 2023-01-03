@@ -24,6 +24,6 @@ class Province extends Model
     }
 
     public function blog(){
-        return $this->hasOne(Blogger::class);
+        return $this->hasOne(Blogger::class,);
     }
 }

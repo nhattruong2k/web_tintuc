@@ -210,6 +210,6 @@ class ManagerUserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id)->delete();
-        return redirect()->back()->with('success', 'Xóa user thành công');
+        return response()->json($user);
     }
 }

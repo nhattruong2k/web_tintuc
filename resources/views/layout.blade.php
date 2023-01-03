@@ -28,13 +28,16 @@
     <script src="{{asset('js/bootstrap-tagsinput.min.js')}}"></script>
     <link href="{{ asset('css/search.css') }}" rel="stylesheet">
     <link href="{{ asset('css/pass.css') }}" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css'rel='stylesheet'>
+    
     @livewireStyles
 </head>
 
 <body >
            <!-- Preloader End -->
+           @yield('blog_province')
            @yield('tin_da_xem')
            @yield('content')
            @yield('category')
@@ -105,7 +108,6 @@
         $('#myInput').trigger('focus')
     })
     </script>
-    
     {{-- Dropdown --}}
  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
@@ -121,7 +123,6 @@
    <script src="{{asset('js/plugins.js')}}"></script>
    <!-- Active js -->
    <script src="{{asset('js/active.js') }}"></script>
-
    <script src="{{ asset('js/app.js') }}"></script>
 
     <script src="//cdn.ckeditor.com/4.16.0/full/ckeditor.js"></script>
@@ -294,6 +295,15 @@
             localStorage.setItem('wishlist_blog', JSON.stringify(old_data));
 
         })
+    </script>
+    <script>
+        // window.addEventListener('alert', event => {
+        //     toastr[event.detail.type](event.detail.message,
+        //         event.detail.title ?? ''), toastr.options = {
+        //         "closeButton": true,
+        //         "progressBar": true,
+        //     };
+        // })
     </script>
     @yield('scripts_blog')
     @yield('comment_script')

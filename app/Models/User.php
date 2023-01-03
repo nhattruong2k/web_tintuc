@@ -66,6 +66,18 @@ class User extends Authenticatable
         return $this->hasOne(Ward::class,'id','ward_id');
     }
 
+    public function scopeUser_province($query, $user){
+        return $query->with('province')->where('province_id',$user->province_id);
+    }
+
+    public function scopeUser_district($query, $user){
+        return $query->with('district')->where('district_id',$user->district_id);
+    }
+
+    public function scopeUser_ward($query, $user){
+        return $query->with('ward')->where('ward_id',$user->ward_id);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -99,4 +111,5 @@ class User extends Authenticatable
             return Carbon::createFromFormat('Y-m-d', $this->attributes['birth_date'])->format('d/m/Y');
         }
     }
+
 }

@@ -72,9 +72,9 @@ class AdminController extends Controller
     }
     public function profileAdmin(){
         $user = User::findOrFail(auth()->user()->id);
-        $user_province = User::with('province')->where('province_id',$user->province_id)->get();
-        $user_district = User::with('district')->where('district_id',$user->district_id)->get();
-        $user_ward = User::with('ward')->where('ward_id',$user->ward_id)->get();
+        $user_province = User::user_province($user)->get();
+        $user_district = User::user_district($user)->get();
+        $user_ward = User::user_ward($user)->get();
         
         $userAddress = [];
         $userAddress = [

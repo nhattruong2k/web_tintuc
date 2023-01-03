@@ -23,4 +23,8 @@ class recentlyViewed extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+    public function scopeRecen_view($query){
+        return $query->with('blog')->orderBy('id','desc')->take(2);
+    }
 }

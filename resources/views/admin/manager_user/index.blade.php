@@ -35,7 +35,7 @@
                         </thead>
                         <tbody>
                         @foreach($user as $key=>$u)
-                                <tr>
+                                <tr class="trUser_{{$u->id}}">
                                     <th scope="row"><span class="d-flex justify-content-center">{{ $key }}</span></th>
                                     <td scope="row"><img class="d-flex justify-content-center" src="{{ asset('public/uploads/user/'.$u->avatar) }}" style="height:70px; width:74px; border-radius:50%"></td>
                                     <td scope="row"><span class="d-flex justify-content-center">{{ $u->name }}</span></td>
@@ -74,16 +74,12 @@
                                             </li>
                                             <!-- Delete -->
                                             <li class="list-inline-item">
-                                            <form action="{{ route('manager_user.destroy',[$u->id]) }}" method="POST">
-                                                @method('DELETE')
-                                                @csrf
-                                                <button onclick="return confirm('Bạn chắc chắn xóa user này không')" class="btn btn-danger btn-sm">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                                                </svg>                                                
-                                            </button>
-                                            </form>
+                                                <a class="btn btn-danger btn-sm dele_user" data-id="{{$u->id}}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                                    </svg>
+                                                </a>
                                             </li>
                                         </ul>
                                     </td>
@@ -97,8 +93,14 @@
     </div>
 </div>
 @endsection
-
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
+<style>
+    .div-none{
+        display: none !important;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>       
 <script>
     $(function() {
         $('.toggle-class').change(function() {
@@ -115,4 +117,45 @@
                 });
         })
     })
-    </script>
+
+    $(document).ready(function(){
+        $('.dele_user').on('click', function(){
+            var id = $(this).data('id');
+            var _urlDeleteStaff = '{{route("manager_user.destroy", ":id")}}';
+            _urlDeleteStaff = _urlDeleteStaff.replace(":id", id);
+            var _token = "{{csrf_token() }}";
+            Swal.fire({
+                title: 'Bạn có muốn xóa thành viên ?',
+                text: "",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Đóng'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "DELETE",    
+                        url: _urlDeleteStaff,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res){
+                            Swal.fire(
+                                'Xóa!',
+                                'Thành viên đã bị xóa.',
+                                'thành công'
+                            );
+                            const myTimeout = setTimeout(delete_role, 1500);
+                            function delete_role(){
+                                $('.trUser_'+id).addClass('div-none');
+                            }
+                        }
+                    });
+                   
+                }
+            })
+        })
+    })
+</script>

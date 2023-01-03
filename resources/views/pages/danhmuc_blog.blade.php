@@ -18,7 +18,7 @@
                     </style>
                         @foreach($danh->children as $child_danh)
                         <span style="line-height: 3.50; font-size: 16px; margin-left:15px; color: #5f5c5c; font-family: arial;">
-                            <a class="btn-blog" href="{{route('category22',['slug_parent'=>$danh->slug_danhmuc, 'slug'=>$child_danh->slug_danhmuc])}}" style="color: inherit; text-decoration: none; position: relative;">{{$child_danh->tendanhmuc}} </a> 
+                            <a href="{{route('category22',['slug_parent'=>$danh->slug_danhmuc, 'slug'=>$child_danh->slug_danhmuc])}}" style="color: inherit; text-decoration: none; position: relative;">{{$child_danh->tendanhmuc}} </a> 
                         </span>
                         @endforeach
                 </div>

@@ -52,12 +52,14 @@ Route::group(['middleware' =>['auth','role:admin']], function(){
     Route::post('/insert_roles/{id}', [ManagerUserController::class, 'insert_roles']);    
     Route::post('/insert_permission/{id}', [UserPremissionController::class, 'insert_permission']);
 
+    Route::post('/delete_role/{id}', [UserPremissionController::class, 'delete_role'])->name('delete_role');
+    Route::post('/extra_role', [UserPremissionController::class, 'extra_role'])->name('extra_role');
     Route::post('/axtra-permission', [UserPremissionController::class, 'axtra_permission'])->name('axtra_permission');  
     Route::resource('/userpermission', UserPremissionController::class);
     Route::get('/profileAdmin',[AdminController::class,'profileAdmin'])->name('profileAdmin');
     Route::resource('/admin', AdminController::class);
     Route::resource('/manager_user', ManagerUserController::class);
-    Route::get('/showPassword/{id}/edit', [AdminController::class,'showPassword'])->name('showPassword');
+    Route::get('/showPassword/{id}/changPass', [AdminController::class,'showPassword'])->name('showPassword');
     Route::put('/resetPassword/{id}', [AdminController::class,'resetPassword'])->name('resetPassword');
     Route::resource('/user', UserController::class);
     // Admin
@@ -80,6 +82,8 @@ Route::group(['middleware' =>['auth','role:admin']], function(){
 Route::group(['middleware'=>['auth','role:admin|publisher|writer|editer|deleter']], function(){
     Route::resource('/blog', BloggerController::class);
     Route::post('blog/cate_blog', [BloggerController::class,'cate_blog'])->name('cate_blog');
+    Route::post('blog/blog_province', [BloggerController::class,'blog_province'])->name('blog.blog_province');
+    Route::post('blog/edit_blogProvince', [BloggerController::class,'edit_blogProvince'])->name('edit_blogProvince');
     Route::post('blog/edit_cate_blog', [BloggerController::class,'edit_cate_blog'])->name('edit_cate_blog');
     Route::get('content_detail/{id}',[BloggerController::class,'content_detail']);
     Route::post('/kichhoat', [BloggerController::class,'kichhoat']);
@@ -131,6 +135,9 @@ Route::get('/tin-tuc-24h', [NewsController::class,'tin_tuc24h'])->name('tuc24h')
 Route::post('/view',[NewsController::class,'view'])->name('view');
 Route::get('tim-kiem', [NewsController::class,'tim_kiem'])->name('tim_kiem');
 Route::post('dele_account', [NewsController::class,'dele_account'])->name('dele_account');
+
+Route::get('/topic/{blog_province}', [NewsController::class, 'blog_province'])->name('blog_province');
+
 Route::get('home-new/{slug}', [NewsController::class,'danh_muc'])->name('category');
 Route::get('home-new/{slug_parent}/{slug}', [NewsController::class,'danh_muc2'])->name('category22');
 Route::get('{slug}', [NewsController::class,'bai_viet'])->name('bai_viet');

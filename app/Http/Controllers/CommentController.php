@@ -27,7 +27,7 @@ class CommentController extends Controller
             ];
             // dd($data);
             if($comment = Comment::create($data)){
-                $comment = Comment::with('user')->where(['blog_id' => $blog_id, 'reply_id'=> 0])->orderBy('id','desc')->get();
+                $comment = Comment::with('user','replies')->where(['blog_id' => $blog_id, 'reply_id'=> 0])->orderBy('id','desc')->where('kichhoat', 0)->get();
                 return view('pages.list-comment')->with(compact('comment'));
                 }
             }
@@ -35,7 +35,7 @@ class CommentController extends Controller
     }
 
     public function list_comment(){
-        $list_comment = Comment::with(['user','baiviet'])->orderBy('id', 'DESC')->where('reply_id',0)->get();
+        $list_comment = Comment::with(['user','baiviet'])->orderBy('id', 'DESC')->get();
         // dd($list_comment);
         return view('admin.list_comment')->with(compact('list_comment'));
     }

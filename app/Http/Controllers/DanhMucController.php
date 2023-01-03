@@ -94,7 +94,7 @@ class DanhMucController extends Controller
     public function edit($id)
     {
         $danhmuctintuc = DanhMuc::find($id);
-        $danhmuc= DanhMuc::where('parent_id','<=>','id')->Where('id','<>',$danhmuctintuc->id)->get();
+        $danhmuc= DanhMuc::Edit_cate($danhmuctintuc)->get();
         return view('admin.danhmuc.edit')->with(compact('danhmuctintuc','danhmuc'));
     }
 
@@ -122,8 +122,8 @@ class DanhMucController extends Controller
      */
     public function destroy($id)
     {
-        DanhMuc::find($id)->delete();
-        return redirect()->back()->with('success', 'Xóa danh mục thành công');
+        $dele_cate = DanhMuc::find($id)->delete();
+        return response()->json($dele_cate);
     }
 
     public function export_csv(){

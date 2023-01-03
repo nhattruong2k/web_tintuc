@@ -121,10 +121,10 @@
                             </li>
                         </ol>
                             @foreach($child->replies as $child1)
-                            @include('pages.child_list_comment',
-                            [
-                                'child1'=>$child1,
-                            ])
+                                    @include('pages.child_list_comment',
+                                    [
+                                        'child1'=>$child1,
+                                    ])
                             @endforeach
                         @endforeach
                     </div>

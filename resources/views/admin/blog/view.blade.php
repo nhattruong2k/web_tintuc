@@ -27,6 +27,13 @@
                                 <br>
                                 <label for="">Tác giả</label>
                                 <div class="p-2 border">{{$tacgia->user->name}}</div>
+                                <br>
+                                <label for="">Bài viết khu vực: </label>
+                                @if($blog->blog_province == 0)
+                                    <div class="p-2 border">Chưa có bài viết theo khu vực</div>
+                                    @elseif($blog->blog_province != 0)
+                                    <div class="p-2 border">{{$blog->province->name}}</div>
+                                @endif
                             </div> 
                             <div class="col-md-3">
                             <label for="">Tóm tắt</label>

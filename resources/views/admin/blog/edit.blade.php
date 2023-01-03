@@ -96,6 +96,22 @@
                             <div id="edit_cate_parent" class="mt-3"></div>
                         </div>
                         <div class="mb-3">
+                            <label for="exampleInputEmail1">Chọn khu vực</label>
+                            <select class="custom-select select_province" name="blog_province">
+                                <option value="0">Chọn khu vực</option>
+                                @foreach($blog_province as $key=>$blog_provinces)
+                                    <option 
+                                        @if($blog_provinceId == $blog_provinces->id)
+                                            selected
+                                        @endif
+                                    value="{{$blog_provinces->id}}">{{$blog_provinces->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div id="slug_province" style="display:none"></div>
+                        
+                        <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Tag Bài Viết</label>
                             <br>
                             <input 
@@ -133,11 +149,16 @@
 <script>
     $(document).ready(function() {
        cate_child();
+       slug_province();
        $('select.edit_select_cate').change(function() {
             cate_child();
-       })
+       });
+       $('select.select_province').change(function(){
+            slug_province();
+       });
+
        function cate_child(){
-        var blog_id = $('#blog_id').data('blog');
+            var blog_id = $('#blog_id').data('blog');
             var cate_id = $('select.edit_select_cate').children("option:selected").val();
             var _token = $("input[name=_token]").val();
             var _url = "{{route('edit_cate_blog')}}";
@@ -155,5 +176,23 @@
                    }
            });
        }
+
+       function slug_province(){
+            var province_id = $('select.select_province').children("option:selected").val();
+            var _token = $("input[name=_token]").val();
+            var _url = "{{route('edit_blogProvince')}}";
+            $.ajax({
+                    type: "post",    
+                    dataType: "json",
+                    url: _url,
+                    data: {
+                        province_id: province_id, 
+                        _token:_token
+                    },
+                    success: function(data){
+                        $('#slug_province').html(data)
+                    }
+            });
+        }
    })
 </script>

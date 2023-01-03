@@ -67,7 +67,7 @@
                         </thead>
                         <tbody>
                             @foreach ( $danhmuctintuc as $key => $danhmuc )
-                                <tr>
+                                <tr class="cate_{{$danhmuc->id}}">
                                     <th scope="row">{{ $key }}</th>
                                     <td scope="row"><span class="d-flex justify-content-center">{{ $danhmuc->tendanhmuc }}</span></td>
                                     <td scope="row"><span class="d-flex justify-content-center">{{ $danhmuc->slug_danhmuc }}</span></td>
@@ -100,12 +100,7 @@
                                                 <a href="{{ route('danhmuc.edit',[$danhmuc->id]) }}" class="btn btn-primary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                                             </li>
                                             <li class="list-inline-item">
-                                                <form action="{{ route('danhmuc.destroy',[$danhmuc->id]) }}" method="POST">
-                                                    @method('DELETE')
-                                                    @csrf
-                                                    <button onclick="return confirm('Bạn chắc chắn xóa danh mục này không')" class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                                </form>
-                                          
+                                                <button class="btn btn-danger delete_category" data-id="{{$danhmuc->id}}"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
                                             </li>
                                         </ul>
                                     </td>
@@ -138,8 +133,14 @@
     .button2:hover {
         box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
         }
+
+    .div-none{
+        display: none !important;
+    }
 </style>
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
         $('.custom-select').change(function() {
@@ -155,6 +156,48 @@
                       console.log(data.success)
                     }
             });
+        })
+    });
+
+    $(document).ready(function(){
+        $('.delete_category').on('click', function(){
+            var id = $(this).data('id');
+            var _urlDeleteCategory = '{{route("danhmuc.destroy", ":id")}}';
+            _urlDeleteCategory = _urlDeleteCategory.replace(":id", id);
+            // alert(_urlDeleteCategory);
+            var _token = "{{csrf_token() }}";
+            Swal.fire({
+                title: 'Bạn có muốn xóa danh mục ?',
+                text: "",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Đóng'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "DELETE",    
+                        url: _urlDeleteCategory,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res){
+                            Swal.fire(
+                                'Xóa!',
+                                'Danh mục đã bị xóa.',
+                                'thành công'
+                            );
+                            const myTimeout = setTimeout(delete_role, 1500);
+                            function delete_role(){
+                                $('.cate_'+id).addClass('div-none');
+                            }
+                        }
+                    });
+                   
+                }
+            })
         })
     })
     </script>

@@ -49,12 +49,41 @@ class BloggerController extends Controller
      */
     public function create()
     {
-        $danhmuc = DanhMuc::with('children')->orderBy('id','desc')->where('kichhoat', 1)->where('parent_id',0)->get();
-        
-        $province_all = Province::whereIn('name',['Thành Phố Hà Nội','Thành phố Đà Nẵng','Thành phố Hồ Chí Minh'])->get();
-        // dd($province_all);
-        return view('admin.blog.create')->with(compact('danhmuc','province_all'));
+        $danhmuc = DanhMuc::Parent_cate()->get();
+        $blog_province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
+        return view('admin.blog.create')->with(compact('danhmuc','blog_province'));
     }
+
+    public function blog_province(Request $request){
+        $query = $request->get('province_id');
+        $data = Province::where('id',$query)->get();
+        function slugify($str) { 
+            $str = trim(mb_strtolower($str)); 
+            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
+            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
+            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
+            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
+            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
+            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
+            $str = preg_replace('/(đ)/', 'd', $str); 
+            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
+            $str = preg_replace('/([\s]+)/', '-', $str); 
+        return $str; 
+        }
+
+        $output = '<div>
+        <label for="exampleInputEmail1">Slug khu vực: </label><br>
+        ';
+        foreach($data as $da){
+            $slug_data = $da->slug_name = str_replace("thanh-pho-","",slugify($da->name));
+            $output .='
+                <input type="hidden" name="slug_province" value="'.$slug_data.'">  
+            ';
+        }
+        $output .= '</div><br>';
+        return response()->json($output);
+    }
+
 
     public function cate_blog(Request $request){
         $query = $request->get('cate_id');
@@ -94,6 +123,8 @@ class BloggerController extends Controller
         $new_image = $name_image.rand (0,99).'.'.$get_image->getClientOriginalExtension(); //Trả về đuôi mở rộng của file
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
+        $blog->blog_province = $request->blog_province;
+        $blog->slug_province = $data['slug_province'];
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
         // dd($blog);
         $blog->save();
@@ -124,15 +155,52 @@ class BloggerController extends Controller
      */
     public function edit(Blogger $blogger, $id)
     {
-        $blog = Blogger::with('user')->find($id);
+        $blog = Blogger::with('user','province')->find($id);
+        if($blog->province != null){
+            $blog_provinceId = $blog->province->id; 
+        }else{
+            $blog_provinceId = ""; 
+        }
+        $blog_province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
         $thuocdanhmuc = $blog->thuocnhieudanhmucblog;
         // echo $thuocdanhmuc;
-        $danhmuc = DanhMuc::orderBy('id','desc')->where('kichhoat', 1)->where('parent_id',0)->get();
+        $danhmuc = DanhMuc::Parent_cate()->get();
     
-        return view('admin.blog.edit')->with(compact('blog','thuocdanhmuc','danhmuc'));
+        return view('admin.blog.edit')->with(compact('blog','thuocdanhmuc','danhmuc','blog_province','blog_provinceId'));
     }
 
-    
+    public function edit_blogProvince(Request $request){
+        $query = $request->get('province_id'); 
+        if($query != 0){
+            $data = Province::where('id',$query)->get();
+        }
+        function slugify2($str) { 
+            $str = trim(mb_strtolower($str)); 
+            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
+            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
+            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
+            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
+            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
+            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
+            $str = preg_replace('/(đ)/', 'd', $str); 
+            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
+            $str = preg_replace('/([\s]+)/', '-', $str); 
+        return $str; 
+        }
+        $output = '<div>
+        <label for="exampleInputEmail1">Slug khu vực: </label><br>
+        ';
+        foreach($data as $da){
+            $slug_data = $da->slug_name = str_replace("thanh-pho-","",slugify2($da->name));
+            $output .='
+                <input type="text" name="slug_province" value="'.$slug_data.'">  
+            ';
+        }
+        $output .= '</div>
+        <br>';
+        return response()->json($output);
+     }
+
     public function edit_cate_blog(Request $request){
         $blog_id = $request->get('blog_id');
         $blog = Blogger::find($blog_id);
@@ -172,7 +240,7 @@ class BloggerController extends Controller
     {
         $blog = Blogger::find($id);
         $blog->fill($data = $request->all());
-        $blog->blog_noibat = $data['blognoibat'];
+        $blog->blog_noibat = $data['blog_noibat'];
 
         $blog->thuocnhieudanhmucblog()->sync($data['danhmuc']);
 
@@ -189,6 +257,12 @@ class BloggerController extends Controller
         $new_image = $name_image.rand (0,99).'.'.$get_image->getClientOriginalExtension(); //Trả về đuôi mở rộng của file
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
+        }
+        $blog->blog_province=$data['blog_province'];
+        if($request->slug_province != null){
+            $blog->slug_province=$data['slug_province'];
+        }else{
+            $blog->slug_province= null;
         }
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
         // dd($blog);
@@ -212,7 +286,7 @@ class BloggerController extends Controller
         $blog->thuocnhieudanhmucblog()->detach($blog->danhmuc_id); 
         Blogger::find($id)->delete();
         // dd($bl);
-        return redirect()->back()->with('success', 'Xóa blog thành công');
+        return response()->json($blog);
     }
 
     public function content_detail($id){

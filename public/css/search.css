@@ -2,13 +2,11 @@
     margin:20px;
 }
 #countryList{
-    border-radius: 50px 20px;
-    position: absolute;
     color: white;
-    right: 117px;
-    width: 70%;
+    position: absolute;
+    right: 119px;
+    width: 61%;
     max-height: 100%;
-    padding: 6px 16px;
 }
 .item-ult {
     padding: 12px 15px;
@@ -51,9 +49,10 @@
     font-weight: 500;
     float: left;
     margin: 0;
+    width: 200px;
 }
 .resultsContent{
-    width: 180%;
+    width: 165%;
 }
 .thumbs a{
     height: 0px;
@@ -64,10 +63,10 @@
 .box-triangle {
     position: absolute;
     bottom: calc(100% - 2px);
-    margin: 0 auto;
+    margin: 5px auto;
     width: 22px;
     height: 15px;
-    right: -132px;
+    right: 10px;
 }
 .search-box{
 position: relative;
@@ -149,3 +148,13 @@ word-wrap: break-word;
 #countryList.active{
     display: none;
 }
+
+#search_key.active{
+    display: block !important;
+}
+#search_key{
+    display: none;
+}
+/* #search_query.active{
+    display: none;
+} */

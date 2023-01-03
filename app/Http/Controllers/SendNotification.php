@@ -51,14 +51,13 @@ class SendNotification extends Controller
         
        $user = User::first();
        Notification::send($user,new TestNotification($data));
-        // dd($user->notifications);
         return redirect()->back()->with('success', 'Thêm thông báo thành công');
     }
 
     public function destroy($id)
     {
         FacadesDB::table('notifications')->where('id','=',$id)->delete();
-        return redirect()->back()->with('success', 'Xóa thông báo thành công');
+        return response()->json();
     }
 
 }

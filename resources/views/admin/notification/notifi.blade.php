@@ -18,7 +18,8 @@
                         @csrf
                             <div class="form-group">
                                 <label>Email: </label>
-                                <input name="email" type="text" class="form-control" placeholder="Email">
+                                <input name="email" type="hidden"  class="form-control" placeholder="{{Auth::user()->email}}" value="{{Auth::user()->email}}">
+                                <div class="p-2 border" value="">{{Auth::user()->email}}</div>                            
                             </div>
                             @if($errors->has('email'))
                                 <div class="bar error">{{$errors->first('email')}}</div>

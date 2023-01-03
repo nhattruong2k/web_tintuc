@@ -34,7 +34,7 @@
                                 </th>
                             @endrole
                             @role('writer|editer|deleter|blogger|admin')
-                                <th scope="col" style="width: 100px;">
+                                <th scope="col" style="width: 105px;">
                                     <span class="d-flex justify-content-center">Quản lý</span>
                                 </th> 
                             @endrole    
@@ -42,7 +42,7 @@
                         </thead>
                         <tbody>
                             @foreach($list_blog as $key=>$blog)
-                            <tr>
+                            <tr class="blog_{{$blog->id}}">
                                 <td scope="row">{{ $key }}</td>
                                 <td scope="row">{{ $blog->tenblog}}</td>
                                 <td scope="row"><img src="{{ asset('public/uploads/blog/'.$blog->image) }}" style="height:97px; width:89px;"></td>
@@ -103,13 +103,9 @@
                                         </li>
                     
                                         <li class="list-inline-item">
-                                            <form action="{{ route('blog.destroy',[$blog->id]) }}" method="POST">
-                                                @method('DELETE')
-                                                @csrf
-                                                <button onclick="return confirm('Bạn chắc chắn xóa blog này không')" class="btn btn-danger btn-sm">
+                                                <button class="btn btn-danger btn-sm dele_blog" data-id="{{$blog->id}}">
                                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                                 </button>
-                                            </form>
                                         </li>
                                     </ul>
                                 </td>
@@ -124,7 +120,14 @@
     </div>
 </div>
 @endsection
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>    
+<style>
+    .div-none{
+        display: none !important;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
         $('.custom-select').change(function() {
@@ -141,6 +144,46 @@
                       console.log(data.success)
                     }
             });
+        })
+    })
+    $(document).ready(function(){
+        $('.dele_blog').on('click', function(){
+            var id = $(this).data('id');
+            var _urlDeleteBlog = '{{route("blog.destroy", ":id")}}';
+            _urlDeleteBlog = _urlDeleteBlog.replace(":id", id);
+            var _token = "{{csrf_token() }}";
+            Swal.fire({
+                title: 'Bạn có muốn xóa bài viết này ?',
+                text: "",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Đóng'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "DELETE",    
+                        url: _urlDeleteBlog,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res){
+                            Swal.fire(
+                                'Xóa!',
+                                'Bài viết đã bị xóa.',
+                                'thành công'
+                            );
+                            const myTimeout = setTimeout(delete_role, 1500);
+                            function delete_role(){
+                                $('.blog_'+id).addClass('div-none');
+                            }
+                        }
+                    });
+                   
+                }
+            })
         })
     })
     </script>
