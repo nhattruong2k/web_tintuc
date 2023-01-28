@@ -13,7 +13,7 @@ use Illuminata\Http\Request;
 use App\Models\Province;
 use App\Models\District;
 use App\Models\Ward;
-
+use Carbon;
 class RegisterController extends Controller
 {
     /*
@@ -104,6 +104,8 @@ class RegisterController extends Controller
         }else{
             $new_image  = 'default-avatar.jpg';
         }
+        $token = rand(0000, 9999);
+        $date_created = Carbon\Carbon::now();
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -112,9 +114,9 @@ class RegisterController extends Controller
             'ninkname'=>$data['ninkname'],
             'phone'=>$data['phone'],
             'gender'=>$data['gender'],
+            'token'=>$token,
+            'date_created'=>$date_created,
         ]);
-        // dd($user);
-        // die();
         if(request()->role == 'blogger'){
             $user->syncRoles('blogger');
         }

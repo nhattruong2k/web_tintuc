@@ -54,12 +54,18 @@
                           <input 
                             type="hidden" 
                             class="form-control" 
-                            name="user_id" 
+                            name="user_id"
                             value="{{ Auth::user()->id }}" 
                             placeholder="{{Auth::user()->name}}"
                             >
+                            <input 
+                            type="hidden" 
+                            class="form-control" 
+                            name="author"
+                            value="{{ Auth::user()->name }}" 
+                            placeholder="{{Auth::user()->name}}"
+                            >
                             <div class="p-2 border" value="">{{Auth::user()->name}}</div>
-
                         </div>
 
                         <div class="mb-3">

@@ -60,6 +60,13 @@
                             value="{{$blog->user_id}}" 
                             placeholder="{{$blog->user->name}}"
                             >
+                            <input 
+                            type="hidden" 
+                            class="form-control" 
+                            name="author" 
+                            value="{{$blog->author}}" 
+                            placeholder="{{$blog->user->name}}"
+                            >
                             <div class="p-2 border" value="">{{$blog->user->name}}</div>
                         </div>
                         <div class="mb-3">
@@ -84,7 +91,7 @@
                             <label for="exampleInputEmail1">Danh Mục Blog</label>
                             <br>
                             <select name="danhmuc[]" class="custom-select edit_select_cate" id="blog_id" data-blog="{{$blog->id}}">
-                                <option value="">Danh mục cha</option>
+                                <option value="0">Danh mục cha</option>
                                 @foreach($danhmuc as $muc)
                                     <option 
                                     @if($thuocdanhmuc->contains($muc->id))
@@ -118,7 +125,7 @@
                                 type="text" 
                                 class="form-control" 
                                 name="tagbaiviet"  
-                                value="{{$blog->tagbaiviet == 0 ? "" : $blog->tagbaiviet}}"
+                                value="{{$blog->tagbaiviet == null ? "" : $blog->tagbaiviet}}"
                                 aria-describedby="emailHelp"
                                 placeholder="Tag Bài Viết"
                                 data-role="tagsinput"

@@ -48,7 +48,7 @@
                                 <br>
                             <label>Tag Bài Viết</label>
                             <div class="p-2 border">
-                                @if($blog->tagbaiviet == 0)
+                                @if($blog->tagbaiviet == null)
                                     <span class="d-flex justify-content-center">
                                         chưa có tag bài viết
                                     </span>

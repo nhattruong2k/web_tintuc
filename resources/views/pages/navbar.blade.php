@@ -68,8 +68,7 @@
                                         <span class="sr-only">(current)</span>
                                     </a>
                                 </li>
-                                {{-- Thể Thao --}}
-                                    @foreach($danhmuc->take(4) as $danh)
+                                    @foreach($nav_cate as $danh)
                                             <li class="nav-item">
                                                 <ul >
                                                     <li class="menu">
@@ -77,7 +76,7 @@
                                                             <ul class="ani-menu">
                                                                 <li>
                                                                     @foreach($danh->children as $childCategory)
-                                                                    <a class="nav-link" href="{{route('category22', ['slug_parent' => $danh->slug_danhmuc, 'slug' => $childCategory->slug_danhmuc])}}">{{ $childCategory->tendanhmuc }}</a>
+                                                                        <a class="nav-link" href="{{route('category22', ['slug_parent' => $danh->slug_danhmuc, 'slug' => $childCategory->slug_danhmuc])}}">{{ $childCategory->tendanhmuc }}</a>
                                                                     @endforeach
                                                                 </li>
                                                             </ul>
@@ -92,11 +91,11 @@
                                 </li>
                             </ul>
                             <!-- Search Form  -->
-                            <div style="margin: -8px 28px 2px -42px;">   
-                                <form action="#">
+                            <div style="margin: -8px 15px 2px -55px;">   
+                                <form id="submit_search" action="{{route('wrap_search')}}">
                                     <div class="search-box">
                                         <div class="input-box">
-                                            <input type="text" id="search" name="tenblog" placeholder="Nhập tin tức cần tìm">
+                                            <input type="text" id="search" name="tenblog" placeholder="Nhập tin tức cần tìm" required>
                                         </div>
                                         <div class="search-btn">
                                             <i class="fa fa-search" aria-hidden="true"></i>
@@ -144,8 +143,6 @@
                                     searchKeyData.classList.remove("active");
                                 }
                         </script>
-                            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-                            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
                             <script>
                             $('#countryList').hide();
                                 $(document).ready(function(){
@@ -174,6 +171,7 @@
                                         }  
                                         search();
                                     });
+
                                     function search(){
                                         var query  = $('#search').val();                                        
                                         var year  = $('#year').val();
@@ -193,10 +191,7 @@
                                                 }
                                             });
                                         
-                                    };
-                                    // $(document).on('click','li', function(){
-                                    //     $('#search').val($(this).text());  
-                                    //     $('#countryList').fadeOut(); 
+                                    }; 
                                     });
                             </script>
 
@@ -223,7 +218,7 @@
                                 @else    
                                 <div class="nav-item dropdown">
                                     <a id="navbarDropdown" class="nav-link dropdown-toggle" href="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        {{ Auth::user()->name }}
+                                        {{ Str::limit((Auth::user()->name),10, '...') }}
                                     </a>
                                     <div class="dropdown-menu position-absolute dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="margin:11px 14px">
                                         <a href="{{route('profileUser')}}" class="dropdown-item">Thông tin cá nhân</a>
@@ -234,7 +229,7 @@
                                     @role('blogger')
                                         <a href="{{url('/post/create')}}" class="dropdown-item">Tạo bài viết</a>
                                     @endrole
-                                        <a href="{{route('notifications')}}" class="dropdown-item">Thông báo</a>
+                                        <a href="{{route('notifications')}}" class="dropdown-item">Góp ý kiến</a>
                                         <a href="{{route('recentViewed')}}" class="dropdown-item">Tin đã xem</a>
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                            onclick="event.preventDefault();

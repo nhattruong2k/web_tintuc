@@ -19,6 +19,7 @@ class CreateBloggersTable extends Migration
             $table->string('slug_blog');
             $table->text('content');
             $table->string('user_id');
+            $table->string('author');
             $table->string('tomtat');
             $table->string('image');
             // $table->integer('danhmuc_id');

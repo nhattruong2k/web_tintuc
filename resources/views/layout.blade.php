@@ -37,6 +37,7 @@
 
 <body >
            <!-- Preloader End -->
+           @yield('wrap_search')
            @yield('blog_province')
            @yield('tin_da_xem')
            @yield('content')

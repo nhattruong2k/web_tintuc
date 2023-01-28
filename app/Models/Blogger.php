@@ -23,7 +23,7 @@ class Blogger extends Model
         'kichhoat', 'slug_blog',
         'blog_noibat','views','content',
         'created_at','updated_at',
-        'tagbaiviet','user_id','blog_province'
+        'tagbaiviet','user_id','blog_province','slug_cateParent','author'
     ];
 
     public function thuocnhieudanhmucblog(){
@@ -48,7 +48,7 @@ class Blogger extends Model
     }
 
     public function scopeDate_blog($query, $data){
-        return $query->with('thuocnhieudanhmucblog','user')->orderBy('id','desc')->whereDate('created_at','>=', $data)->where('kichhoat', 1);
+        return $query->with('thuocnhieudanhmucblog','user')->orderBy('created_at', 'desc')->whereDate('created_at','>=', $data)->where('kichhoat', 1);
     }
 
     public function scopeMore_blog($query, $nhiublog){

@@ -53,6 +53,14 @@ class DanhMucController extends Controller
         return view('admin.danhmuc.create')->with(compact('categories'));
     }
 
+    public function insert_navbar(Request $request){
+        $navbar = $request->get('navbar');
+        $cate_id = $request->get('cate_id');
+        $danhmuc = DanhMuc::find($cate_id);
+        $danhmuc->navbar = $navbar;
+        $danhmuc->save();
+        return response()->json();
+    }
     /**
      * Store a newly created resource in storage.
      *

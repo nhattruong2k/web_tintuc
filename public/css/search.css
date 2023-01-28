@@ -4,7 +4,7 @@
 #countryList{
     color: white;
     position: absolute;
-    right: 119px;
+    right: 105px;
     width: 61%;
     max-height: 100%;
 }
@@ -76,7 +76,7 @@ top:9px;
 transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 .search-box.active{
-    width: 305px;
+    width: 270px;
 }
 .search-box input{
 height: 100%;
@@ -134,7 +134,7 @@ transition: all 0.5s 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
 }
 .search-box .cancel-btn.active{
-right:-35px;
+right:-25px;
 transform: translateY(-42%) rotate(360deg);
 
 }

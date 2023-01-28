@@ -46,13 +46,13 @@
                             <label for=""><i class="fa fa-tag"></i></label>
                             @php
                                 $tags = $baiviet->tagbaiviet;
-                                $tag =explode(",", $tags);
+                                $tag = explode(",", $tags);
                             @endphp
                             @foreach($tag as $baiviets)
-                                @if($baiviets == 0 || $baiviets == NULL )
+                                @if($baiviets == NULL )
                                     <li><a>Chưa có tags</a></li>
                                 @else
-                                    <li><a href="{{route('tagbaiviet',str_slug($baiviets))}}">{{$baiviets}}</a></li>
+                                    <li><a href="{{route('tagbaiviet',str_slug($baiviets))}}">{{ $baiviets }}</a></li>
                                 @endif
                             @endforeach
                         </ul>

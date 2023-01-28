@@ -131,6 +131,15 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="piga mt-3">
+                            {{ $blogger->links() }}
+                            <style>
+                                .piga ul{
+                                    background-color:white;
+                                    justify-content: center;
+                                }
+                            </style>
+                        </div>
                     </div>
                 </div>
             </div>

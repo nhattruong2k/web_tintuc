@@ -12,7 +12,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">Thông báo cho quản trị</div>
+                    <div class="card-header">Góp ý kiến cho quản trị</div>
                     {{-- Hiển thị thông báo --}}
                     <div class="card-body">
                         @if (session('success'))

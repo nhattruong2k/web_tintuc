@@ -11,15 +11,13 @@ class DanhMuc extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tendanhmuc', 'motadanhmuc','kichhoat', 'slug_danhmuc','parent_id',
+        'tendanhmuc', 'motadanhmuc','kichhoat', 'slug_danhmuc','parent_id','navbar'
     ];
     
     public function parentCategory(){   //1-n
         return $this->belongsTo('App\Models\DanhMuc','parent_id');
     }
   
-
-
     public function children(){ //những thằng con category
         return $this->hasMany('App\Models\DanhMuc', 'parent_id', 'id')->with('parentCategory','nhieublog');
     }
@@ -34,6 +32,10 @@ class DanhMuc extends Model
 
     public function scopeParent_cate($query){
         return $query->with('children','nhieublog')->orderBy('id','desc')->where('parent_id','0')->where('kichhoat', 1);
+    }
+    
+    public function scopeNav_cate($query){
+        return $query->with('children','nhieublog')->orderBy('id','desc')->where('parent_id','0')->where('kichhoat', 1)->where('navbar',1)->take(3);
     }
 
     public function scopeChild_cate($query){

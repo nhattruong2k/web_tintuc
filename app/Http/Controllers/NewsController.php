@@ -23,17 +23,59 @@ use App\Helper;
 use App\Models\recentlyViewed;
 use ParagonIE\Sodium\Core\Curve25519\H;
 use App\Models\Province;
+use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('role:blogger|viewer',['only' => ['thembaiviet','luubaiviet',
-    //                                                         'profileUser','storeProfile',
-    //                                                         'password','updatePassword',
-    //                                                         'notifications','insert_noti']]);
-    // }
-  
+
+    public function wrap_search(Request $request){
+        $val_keyword = $request->tenblog;
+        $val_time = $request->time;
+        $dt = Carbon::now('Asia/Ho_Chi_Minh');
+        $day = $dt->subDay()->format("Y-m-d");
+        $week = $dt->subWeek()->format("Y-m-d");
+        $month = $dt->subMonth()->format("Y-m-d");
+        $val_category = $request->category;
+        $content_type = $request->content_type;
+        $result = Blogger::query()->where('kichhoat',1);
+
+        if(!empty($content_type) && $content_type != 'all'){
+            $result = $result->where($content_type, 'like', "%{$val_keyword}%");      
+        }else{
+            $result = $result->where('tenblog', 'like', "%{$val_keyword}%")->Orwhere('tomtat', 'like', "%{$val_keyword}%")->Orwhere('author', 'like', "%{$val_keyword}%");
+        }
+        // Datetime
+        if(!empty($val_time)) {
+            if($val_time == "day"){
+                $result = $result->whereDate('created_at','>=', $day);
+            }elseif($val_time == "week"){
+                $result = $result->whereDate('created_at','>=', $week);
+            }elseif($val_time == "month"){
+                $result = $result->whereDate('created_at','>=', $month);
+            }
+        }
+        // Category
+        if (!empty($val_category) && $val_category != "all"){ 
+            $result = $result->where('slug_cateParent', $val_category);            
+        }
+        $search_blog = $result->paginate(5);
+
+
+        $nav_cate = DanhMuc::Nav_cate()->get();
+        $danhmuc = DanhMuc::Parent_cate()->get();
+        $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
+        foreach($province as $provinces){
+            $str = $provinces->name;
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($str));
+        }
+        foreach($search_blog as $blog){
+            $str = $blog->user->name;
+            $blog->tacgia_slug = slugify($str);
+        }
+
+        return view('pages.multiple_search')->with(compact('nav_cate','province','danhmuc','val_keyword','search_blog'));
+    }
+
     public function tim_kiem(Request $request){
         if($request->ajax())
         {
@@ -44,7 +86,7 @@ class NewsController extends Controller
                 $data = Blogger::Blog()->get();
             }
 
-            $output = '<div class="resultsContent" style="width: 305px; height: 305px; overflow: auto">
+            $output = '<div class="resultsContent" style="width: 270px; height: 305px; overflow: auto">
             ';
             foreach($data as $row)
             {
@@ -80,7 +122,7 @@ class NewsController extends Controller
 
     public function home_new(){
         $danhmuc = DanhMuc::Parent_cate()->get();
-    
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $danhmuc_check = DanhMuc::Child_cate()->get();
         $danhparent_blog_id = [];
         $danhchild_blog_id = [];
@@ -110,69 +152,55 @@ class NewsController extends Controller
 
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
         
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($blogger as $blog){
-                $blog->tacgia_slug = slugify($blog->user->name);
+            $str = $blog->user->name;
+            $blog->tacgia_slug = slugify($str);
         }
         
         foreach($blog_hot as $blog){
-            $blog->tacgia_slug = slugify($blog->user->name);
+            $str = $blog->user->name;
+            $blog->tacgia_slug = slugify($str);
         }
         foreach($danh_blog as $danh){
             foreach($danh->nhieublog as $blog){
-                $blog->tacgia_slug = slugify($blog->user->name);
+                $str = $blog->user->name;
+                $blog->tacgia_slug = slugify($str);
             }
             foreach($danh->children as $danh_children){
                 foreach($danh_children->nhieublog as $blog_chil){
-                    $blog_chil->tacgia_slug = slugify($blog_chil->user->name);
+                    $str = $blog_chil->user->name;
+                    $blog_chil->tacgia_slug = slugify($str);
                 }
             }
         }
         foreach($province as $provinces){
-            $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
+            $str = $provinces->name;
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($str));
         }
-       return view('pages.home')->with(compact('danh_blog','danhmuc','blogger','blog_hot','array_blog','province'));
+       return view('pages.home')->with(compact('nav_cate','danh_blog','danhmuc','blogger','blog_hot','array_blog','province'));
     }
     
     public function blog_province($blog_province){
         $danhmuc = DanhMuc::Parent_cate()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        $blogger = Blogger::Blog()->where('slug_province',$blog_province)->get();
-        function slugify2($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
+        $blogger = Blogger::Blog()->where('slug_province',$blog_province)->paginate(8);
         foreach($province as $provinces){
-            $provinces->slug_name = str_replace("thanh-pho-","",slugify2($provinces->name));
+            $str = $provinces->name;
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($str));
+            $provinces->name_province = substr( str_replace("Thành phố","",$str), 1);
         }
-        // dd($province);
 
         foreach($blogger as $blog){
-            $blog->slug_blogProvince = str_replace("thanh-pho-","",slugify2($blog->province->name));
-            $blog->tacgia_slug = slugify2($blog->user->name);
+            $str = $blog->province->name;
+            $str1 = $blog->user->name;
+            $blog->slug_blogProvince = str_replace("thanh-pho-","",slugify($str));
+            $blog->tacgia_slug = slugify($str1);
+            $blog->province_blog = substr( str_replace("Thành phố","",$str), 1);
         }
-        return view('pages.blogProvince')->with(compact('danhmuc','province','blogger'));
+        // dd($blog_province);
+
+        return view('pages.blogProvince')->with(compact('nav_cate','danhmuc','province','blogger','blog_province'));
     }
 
     public function livewire(){
@@ -182,40 +210,33 @@ class NewsController extends Controller
     public function tin_tuc24h(){
         $danhmuc = DanhMuc::Parent_cate()->get();
         $blog_hot = Blogger::Blog_hot()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         $data = Carbon::now();
         $data->subDay();
         $data->format("Y-m-d");
         $posts = Blogger::Date_blog($data)->paginate(5);
+        // dd($posts);
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
 
         foreach($posts as $blog){
-             $blog->tacgia_slug = slugify($blog->user->name);
+            $str = $blog->user->name;
+            $blog->tacgia_slug = slugify($str);
         }
         foreach($blog_hot as $blog){
-            $blog->tacgia_slug = slugify($blog->user->name);
+            $str = $blog->user->name;
+            $blog->tacgia_slug = slugify($str);
         }
         foreach($province as $provinces){
-            $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
+            $str = $provinces->name;
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($str));
         }
-        return view('pages.tintuc_24h')->with(compact('danhmuc','blog_hot','posts','province'));
+        return view('pages.tintuc_24h')->with(compact('nav_cate','danhmuc','blog_hot','posts','province'));
     }
 
     public function danh_muc($slug){
         $danhmuc = DanhMuc::Parent_cate()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $danhmuc_id = DanhMuc::Caterogy($slug)->first();
         $danhmuc_parent = DanhMuc::Caterogy($slug)->first();
         $danhmuc_blog = DanhMuc::find($danhmuc_id->id);
@@ -226,31 +247,21 @@ class NewsController extends Controller
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
 
         $tendanh = $danhmuc_id;
-        $blogger = Blogger::Blog()->whereIn('id',$nhiublog)->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
+        $blogger = Blogger::Blog()->whereIn('id',$nhiublog)->paginate(8);
         foreach($province as $provinces){
-            $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
+            $str = $provinces->name;
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($str));
         }
         foreach($blogger as $blog){
-             $blog->tacgia_slug = slugify($blog->user->name);
+            $str = $blog->user->name;
+             $blog->tacgia_slug = slugify($str);
         }
-        return view('pages.category')->with(compact('danhmuc','blogger','tendanh','slug', 'danhmuc_id', 'danhmuc_parent','province'));
+        return view('pages.category')->with(compact('nav_cate','danhmuc','blogger','tendanh','slug', 'danhmuc_id', 'danhmuc_parent','province'));
     }
 
     public function danh_muc2($slug_parent, $slug){
         $danhmuc = DanhMuc::Parent_cate()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $danhmuc_id = DanhMuc::Caterogy($slug)->first();
         $danhmuc_parent = DanhMuc::Category2($danhmuc_id)->first();
         // dd($danhmuc_parent);
@@ -260,34 +271,24 @@ class NewsController extends Controller
             $nhiublog[] = $danh->id;
         }
         $tendanh = $danhmuc_id;
-        $blogger = Blogger::More_blog($nhiublog)->get();
+        $blogger = Blogger::More_blog($nhiublog)->paginate(8);
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
-
+    
         foreach($blogger as $blog){
-             $blog->tacgia_slug = slugify($blog->user->name);
+            $str = $blog->user->name;
+            $blog->tacgia_slug = slugify($str);
         }
         foreach($province as $provinces){
-            $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
+            $str = $provinces->name;
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($str));
         }
-        return view('pages.category')->with(compact('danhmuc','blogger','tendanh','slug', 'danhmuc_id', 'danhmuc_parent','province'));
+        return view('pages.category')->with(compact('nav_cate','danhmuc','blogger','tendanh','slug', 'danhmuc_id', 'danhmuc_parent','province'));
     }
 
     public function bai_viet($slug){
         $danhmuc = DanhMuc::Parent_cate()->get();
         $blog_hot = Blogger::Blog_hot()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         // dd($blog_hot);
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
 
@@ -325,25 +326,10 @@ class NewsController extends Controller
                 DB::table('recently_vieweds')->insert(['user_id'=>auth()->user()->id, 'blog_id'=>$baiviet->id, 'session_id'=>$session_id, 'created_at'=>Carbon::now(), 'updated_at'=>now()]);
             }
         }
-
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         $baiviet->tacgia_slug = slugify($baiviet->user->name);
         foreach($blog_hot as $blog){
             $blog->tacgia_slug = slugify($blog->user->name);
         }
-        
         foreach($cungdanhmuc as $danh){
             foreach($danh->nhieublog as $nhieubaiviet){
                 $nhieubaiviet->tacgia_slug = slugify($nhieubaiviet->user->name);  
@@ -352,29 +338,17 @@ class NewsController extends Controller
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.blog')->with(compact('blog_hot','comment','countComments','danhmuc','baiviet','cungdanhmuc','like','like_count','recentBlog','province'));
+        return view('pages.blog')->with(compact('nav_cate','blog_hot','comment','countComments','danhmuc','baiviet','cungdanhmuc','like','like_count','recentBlog','province'));
     }
 
     public function recentViewed(){
         $danhmuc = DanhMuc::Parent_cate()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.recentView')->with(compact('danhmuc','province'));
+        return view('pages.recentView')->with(compact('nav_cate','danhmuc','province'));
     }
     
     public function view(Request $request){
@@ -391,32 +365,20 @@ class NewsController extends Controller
     public function tacgia($slug){
         $danhmuc = DanhMuc::Parent_cate()->get();
         $blogger = Blogger::Blog()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
 
-        function slugify_blogger($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($blogger as $blog){
-             $blog->tacgia_slug = slugify_blogger($blog->user->name);
+             $blog->tacgia_slug = slugify($blog->user->name);
         }
         $blog_slug = $blogger->where('tacgia_slug',$slug);
          foreach($blog_slug as $blog_2){
             $tacgia = $blog_2->user->name;
          }
          foreach($province as $provinces){
-            $provinces->slug_name = str_replace("thanh-pho-","",slugify_blogger($provinces->name));
+            $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.tacgia')->with(compact('danhmuc','blog_slug','tacgia','province'));
+        return view('pages.tacgia')->with(compact('nav_cate','danhmuc','blog_slug','tacgia','province'));
     }
 
     public function save_likeDislike(Request $request){
@@ -440,58 +402,72 @@ class NewsController extends Controller
         return $like;
     }
 
-
     public function tag_baiviet(Request $request, $tag_baiviet){
         $danhmuc = DanhMuc::Parent_cate()->get();
-        // $slug = Str::slug($request->tag_baiviet);
         $baiviet_tag = Blogger::Blog_tag($tag_baiviet)->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
 
-        function slugify_tag($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($baiviet_tag as $tag){
-             $tag->tacgia_slug = slugify_tag($tag->user->name);
+             $tag->tacgia_slug = slugify($tag->user->name);
         }
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.tag')->with(compact('danhmuc','tag_baiviet','baiviet_tag','province'));
-    }
-// 
+        return view('pages.tag')->with(compact('nav_cate','danhmuc','tag_baiviet','baiviet_tag','province'));
+    }   
+ 
     public function thembaiviet(){
         $danhmuc = DanhMuc::Parent_cate()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $danhmuc_baiviet = DanhMuc::Child_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify_tag($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.baiviet')->with(compact('danhmuc','danhmuc_baiviet','province'));
+        return view('pages.baiviet')->with(compact('nav_cate','danhmuc','danhmuc_baiviet','province'));
+    }
+    
+    public function cate_blog(Request $request){
+        $query = $request->get('cate_id');
+        $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
+        $slug_cate = DanhMuc::orderBy('id','desc')->where('id',$query)->get();
+        // dd($slug_cate);
+        $output = '<label for="">Danh muc con</label><br>
+        <div class="form-check-inline">';
+        foreach($slug_cate as $slug_cates){
+            $output .='
+                <input class="form-check-input" name="slug_cateParent" type="hidden" value="'.$slug_cates->slug_danhmuc.'">
+            ';
+        };
+        foreach($data as $val){
+            $output .= '<div style="margin: 0px 5px 0px 5px;;">
+            <input class="form-check-input" name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
+                <label class="form-check-label" for="danhmuc_'.$val->id.'" style="font-size:15px; color:black">'.$val->tendanhmuc.'</label>
+            </div>
+            ';
+        };
+        
+        $output .= '</div>';
+        // dd( $output);
+        return response()->json($output);
     }
 
+    public function province_blog(Request $request){
+        $query = $request->get('province_id');
+        $data = Province::where('id',$query)->get();
+        $output = '<div>
+        <label for="exampleInputEmail1">Slug khu vực: </label><br>
+        ';
+        foreach($data as $da){
+            $slug_data = $da->slug_name = str_replace("thanh-pho-","",slugify($da->name));
+            $output .='
+                <input type="hidden" name="slug_province" value="'.$slug_data.'">  
+            ';
+        }
+        $output .= '</div><br>';
+        return response()->json($output);
+    }
     public function luubaiviet(StoreBlogRequest $request){
         $blog = new Blogger(); 
         $blog->fill($data = $request->all());
@@ -503,30 +479,17 @@ class NewsController extends Controller
         $new_image = $name_image.rand (0,99).'.'.$get_image->getClientOriginalExtension(); //Trả về đuôi mở rộng của file
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
+        $blog->blog_province = $request->blog_province;
+        if($request->slug_province != null){
+            $blog->slug_province=$data['slug_province'];
+        }else{
+            $blog->slug_province= null;
+        }
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
         $blog->save();
         $blog->thuocnhieudanhmucblog()->attach($data['danhmuc']);
         // dd($blog);
         return redirect('/post/create')->with('success', 'Thêm blog thành công');
-    }
-
-    public function cate_blog(Request $request){
-        $query = $request->get('cate_id');
-        $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
-
-        $output = '<label for="">Danh muc con</label><br>
-        <div class="form-check-inline">
-        ';
-        foreach($data as $val){
-            $output .= '<div style="margin: 0px 5px 0px 5px;;">
-            <input class="form-check-input" name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
-            <label style="color:black" class="form-check-label" for="danhmuc_'.$val->id.'">'.$val->tendanhmuc.'</label>
-            </div>
-            ';
-        };
-        $output .= '</div>';
-        // dd( $output);
-        return response()->json($output);
     }
 
     public function dele_account(Request $request){
@@ -542,6 +505,7 @@ class NewsController extends Controller
     public function profileUser(){
         $danhmuc = DanhMuc::Parent_cate()->get();
         $user = User::findOrFail(auth()->user()->id);
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $user_province = User::user_province($user)->get();
         $user_district = User::user_district($user)->get();
         $user_ward = User::user_ward($user)->get();
@@ -552,24 +516,12 @@ class NewsController extends Controller
             "ward" => $user_ward,
         ];
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.profileUser')->with(compact('user', 'userAddress','danhmuc','province'));
+        return view('pages.profileUser')->with(compact('nav_cate','user', 'userAddress','danhmuc','province'));
     }
+
     public function storeProfile(UpdateUserRequest $request){
         $user = User::find(auth()->user()->id);
         $data = $request->all();
@@ -596,25 +548,14 @@ class NewsController extends Controller
     public function password(){
         $danhmuc = DanhMuc::Parent_cate()->get();
         $pass = User::find( auth()->user()->id );
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.password')->with(compact('danhmuc','pass','province'));
+        return view('pages.password')->with(compact('nav_cate','danhmuc','pass','province'));
     }
+    
     public function updatePassword(Request $request){
         if (!(Hash::check($request->get('current-password'), Auth::user()->password))) {
             // The passwords matches
@@ -644,24 +585,12 @@ class NewsController extends Controller
 
     public function notifications(){
         $danhmuc = DanhMuc::Parent_cate()->get();
+        $nav_cate = DanhMuc::Nav_cate()->get();
         $province = Province::whereIn('name', ['Thành phố Hà Nội', 'Thành phố Hồ Chí Minh'])->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
         foreach($province as $provinces){
             $provinces->slug_name = str_replace("thanh-pho-","",slugify($provinces->name));
         }
-        return view('pages.thongbao')->with(compact('danhmuc','province'));
+        return view('pages.thongbao')->with(compact('nav_cate','danhmuc','province'));
     }
 
     public function insert_noti(Request $request){

@@ -75,6 +75,13 @@
                             value="{{ Auth::user()->id }}" 
                             placeholder="{{Auth::user()->name}}"
                             >
+                            <input 
+                            type="hidden" 
+                            class="form-control" 
+                            name="author"
+                            value="{{ Auth::user()->name }}" 
+                            placeholder="{{Auth::user()->name}}"
+                            >
                             <div class="p-2 border" value="">{{Auth::user()->name}}</div>
                         </div>
                         <div class="mb-3">
@@ -101,6 +108,16 @@
                            <br>
                             <div id="cate_parent" class="mt-3"></div>
                         </div>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1">Chọn khu vực</label>
+                            <select class="custom-select select_province" name="blog_province" >
+                                <option value="0">Chọn khu vực</option>
+                                @foreach($province as $key=>$blog_provinces)
+                                    <option value="{{$blog_provinces->id}}">{{$blog_provinces->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="province_blog" style="display:none"></div>
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Tag Bài Viết: </label>
                             <input 
@@ -168,6 +185,23 @@
                     },
                     success: function(data){
                         $('#cate_parent').html(data);
+                    }
+            });
+        })
+        $('select.select_province').change(function(){
+            var province_id = $(this).children("option:selected").val();
+            var _token = $("input[name=_token]").val();
+            var _url = "{{route('post.province_blog')}}";
+            $.ajax({
+                    type: "post",    
+                    dataType: "json",
+                    url: _url,
+                    data: {
+                        province_id: province_id, 
+                        _token:_token
+                    },
+                    success: function(data){
+                        $('#province_blog').html(data)
                     }
             });
         })

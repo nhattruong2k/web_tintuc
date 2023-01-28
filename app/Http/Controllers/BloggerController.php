@@ -57,20 +57,6 @@ class BloggerController extends Controller
     public function blog_province(Request $request){
         $query = $request->get('province_id');
         $data = Province::where('id',$query)->get();
-        function slugify($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
-        }
-
         $output = '<div>
         <label for="exampleInputEmail1">Slug khu vực: </label><br>
         ';
@@ -88,10 +74,14 @@ class BloggerController extends Controller
     public function cate_blog(Request $request){
         $query = $request->get('cate_id');
         $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
-
+        $slug_cate = DanhMuc::orderBy('id','desc')->where('id',$query)->get();
         $output = '<label for="">Danh muc con</label><br>
-        <div class="form-check-inline">
-        ';
+        <div class="form-check-inline">';
+        foreach($slug_cate as $slug_cates){
+            $output .='
+                <input class="form-check-input" name="slug_cateParent" type="hidden" value="'.$slug_cates->slug_danhmuc.'">
+            ';
+        };
         foreach($data as $val){
             $output .= '<div style="margin: 0px 5px 0px 5px;;">
             <input class="form-check-input" name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
@@ -99,6 +89,7 @@ class BloggerController extends Controller
             </div>
             ';
         };
+        
         $output .= '</div>';
         // dd( $output);
         return response()->json($output);
@@ -124,12 +115,14 @@ class BloggerController extends Controller
         $get_image->move($path, $new_image);
         $blog->image = $new_image;
         $blog->blog_province = $request->blog_province;
-        $blog->slug_province = $data['slug_province'];
+        if($request->slug_province != null){
+            $blog->slug_province=$data['slug_province'];
+        }else{
+            $blog->slug_province= null;
+        }
         $blog->created_at = Carbon::now('Asia/Ho_Chi_Minh');
-        // dd($blog);
         $blog->save();
         $blog->thuocnhieudanhmucblog()->attach($data['danhmuc']);
-        // dd($blog);
         return redirect('blog')->with('success', 'Thêm blog thành công');
 
     }
@@ -143,6 +136,7 @@ class BloggerController extends Controller
     public function show($id)
     {
         $blog = Blogger::with('thuocnhieudanhmucblog','province')->findOrFail($id);
+        // dd($blog);
         $tacgia= Blogger::with('user')->findOrFail($id);
         return view('admin.blog.view')->with(compact('blog','tacgia'));
     }
@@ -173,27 +167,22 @@ class BloggerController extends Controller
         $query = $request->get('province_id'); 
         if($query != 0){
             $data = Province::where('id',$query)->get();
-        }
-        function slugify2($str) { 
-            $str = trim(mb_strtolower($str)); 
-            $str = preg_replace('/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/', 'a', $str); 
-            $str = preg_replace('/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/', 'e', $str); 
-            $str = preg_replace('/(ì|í|ị|ỉ|ĩ)/', 'i', $str); 
-            $str = preg_replace('/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/', 'o', $str); 
-            $str = preg_replace('/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/', 'u', $str); 
-            $str = preg_replace('/(ỳ|ý|ỵ|ỷ|ỹ)/', 'y', $str); 
-            $str = preg_replace('/(đ)/', 'd', $str); 
-            $str = preg_replace('/[^a-z0-9-\s]/', '', $str); 
-            $str = preg_replace('/([\s]+)/', '-', $str); 
-        return $str; 
+        }elseif($query == 0){
+            $data = null;
         }
         $output = '<div>
         <label for="exampleInputEmail1">Slug khu vực: </label><br>
         ';
-        foreach($data as $da){
-            $slug_data = $da->slug_name = str_replace("thanh-pho-","",slugify2($da->name));
+        if($query != 0){
+            foreach($data as $da){
+                $slug_data = $da->slug_name = str_replace("thanh-pho-","",slugify($da->name));
+                $output .='
+                    <input type="text" name="slug_province" value="'.$slug_data.'">  
+                ';
+            }
+        }elseif($query == 0){
             $output .='
-                <input type="text" name="slug_province" value="'.$slug_data.'">  
+                <input type="text" name="slug_province" value="'.$data.'">  
             ';
         }
         $output .= '</div>
@@ -210,21 +199,39 @@ class BloggerController extends Controller
            array_push($array_cate, $thuoc->id);
         }
         $query = $request->get('cate_id');
-        $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
+        if($query == 0 ){
+            $data = null;
+        }else{
+            $data = DanhMuc::orderBy('id','desc')->where('parent_id',$query)->get();
+            $slug_cate = DanhMuc::orderBy('id','desc')->where('id',$query)->get();
+        }
+
         $output = '<label for="">Danh muc con</label><br>
         <div class="form-check-inline">
         ';
-        foreach($data as $val){
-            $check = in_array($val->id,$array_cate) ? 'checked="checked"' : '';
-            $output .= '<div style="margin: 0px 5px 0px 5px;">
-        <input class="form-check-input" '.$check.'
-         
-        name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
-
-        <label class="form-check-label" for="danhmuc_'.$val->id.'">'.$val->tendanhmuc.'</label>
-        </div>
-        ';    
-    }
+        if($query == 0){
+            $output .='
+                <input type="hidden" name="slug_cateParent" value="'.$data.'">
+            ';
+        }else{
+            foreach($slug_cate as $slug_cates){
+                $check_parent = in_array($slug_cates->id,$array_cate) ? 'checked="checked"' : '';
+                $output .='
+                    <input class="form-check-input" '.$check_parent.' name="slug_cateParent" type="hidden" value="'.$slug_cates->slug_danhmuc.'">
+                ';
+            };
+            foreach($data as $val){
+                $check = in_array($val->id,$array_cate) ? 'checked="checked"' : '';
+                $output .= '<div style="margin: 0px 5px 0px 5px;">
+                <input class="form-check-input" '.$check.'
+                
+                name="danhmuc[]" type="checkbox" id="danhmuc_'.$val->id.'" value="'.$val->id.'">
+    
+                <label class="form-check-label" for="danhmuc_'.$val->id.'">'.$val->tendanhmuc.'</label>
+                </div>
+                ';    
+            }
+        }
         $output .= '</div>';
         // dd( $output);
         return response()->json( $output);
@@ -241,9 +248,10 @@ class BloggerController extends Controller
         $blog = Blogger::find($id);
         $blog->fill($data = $request->all());
         $blog->blog_noibat = $data['blog_noibat'];
-
         $blog->thuocnhieudanhmucblog()->sync($data['danhmuc']);
-
+        if($request->blog_province == 0 ){
+            $blog->blog_province = null;
+        }
         $get_image = $request->image;
         if($get_image)
         {

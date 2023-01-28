@@ -54,7 +54,12 @@
                             <th scope="col">
                                 <span class="d-flex justify-content-center">Mô tả</span>
                             </th>
-                            <th scope="col"><span class="d-flex justify-content-center">Danh mục cha</span></th>
+                            <th scope="col"><span class="d-flex justify-content-center">Cate_Parent</span></th>
+                            @role('admin')
+                            <th scope="col">
+                                <span class="d-flex justify-content-center">navbar</span>
+                            </th>
+                            @endrole
                             @role('admin|publisher')
                                 <th scope="col">
                                     <span class="d-flex justify-content-center">Kích hoạt</span>
@@ -85,6 +90,17 @@
                                             @endforeach
                                         </span>
                                     </td>
+                                    @role('admin')
+                                    <td scope="row">
+                                        <span class="d-flex justify-content-center">
+                                                <div class="form-check form-check-inline">
+                                                    @if($danhmuc->parent_id == 0)
+                                                        <input data-id="{{$danhmuc->id}}" value="{{$danhmuc->navbar == 1 ? 'selected' :''}}" class="toggle-class" type="checkbox" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-on="Active" data-off="InActive" {{$danhmuc->navbar == 1 ? 'checked' :''}}>
+                                                    @endif
+                                                </div>
+                                        </span>
+                                    </td>
+                                    @endrole
                                     @role('admin|publisher')
                                         <td scope="row">
                                                 <select class="custom-select" id="selectKichhoat" name="kichhoat" data-id="{{$danhmuc->id}}" >  
@@ -143,6 +159,25 @@
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
+        $('.toggle-class').change(function() {
+        var navbar = $(this).prop('checked') == true ? 1 : 0;
+        var cate_id = $(this).data('id'); 
+        var _token = "{{csrf_token() }}";
+        var _urlNav = "{{route('insert_navbar')}}"
+            $.ajax({
+                type: "post",    
+                dataType: "json",
+                url: _urlNav,
+                data: {
+                    'navbar': navbar,
+                    'cate_id':cate_id,
+                    '_token':_token
+                },
+                success: function(data){
+
+                }
+            });
+        })
         $('.custom-select').change(function() {
         var kichhoat = $(this).val();
         var danhmuc_id = $(this).data('id');

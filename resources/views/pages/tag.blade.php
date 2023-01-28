@@ -15,7 +15,11 @@
                     <div class="post-content-area mb-100">
                         <!-- Catagory Area -->
                         <div class="world-catagory-area">
-                            <h3 class="title">Tag Bài Viết Tìm Kiếm: {{$tag_baiviet}}</h3>
+                            <h3 class="title">Tag Bài Viết Tìm Kiếm: 
+                                @foreach($baiviet_tag as $tag)
+                                {{$tag->tagbaiviet}}
+                                @endforeach
+                            </h3>
                             <div class="tab-content" id="myTabContent">
                                 @php
                                 $count = count($baiviet_tag); //Đếm $truyện\

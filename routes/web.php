@@ -19,6 +19,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\CommentLoginController;
 use App\Http\Controllers\BlogViewController;
+use App\Http\Controllers\TestEmailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,7 @@ Route::get('/register',[RegisterController::class,'index']);
 Route::get('/location/provinces', [LocationController::class, 'getProvinces'])->name('getProvinces');
 Route::get('/location/province/{province}/districts', [LocationController::class, 'getDistricts'])->name('getDistricts');
 Route::get('/location/district/{district}/wards', [LocationController::class, 'getWards'])->name('getWards');
+Route::get('/testEmail',[TestEmailController::class, 'email']);
 
 Route::group(['middleware' =>['auth','role:admin']], function(){
     Route::post('/export-csv',[DanhMucController::class,'export_csv']);
@@ -46,6 +48,8 @@ Route::group(['middleware' =>['auth','role:admin']], function(){
     Route::get('/staff_user', [ManagerUserController::class,'staff_user'])->name('staff_user');
     Route::get('/phan-vaitro/{id}', [ManagerUserController::class, 'phanvaitro'])->name('vaitro');
     Route::get('/accept-role',  [ManagerUserController::class, 'accept_role']);
+    Route::post('/insert_navbar',  [DanhMucController::class, 'insert_navbar'])->name('insert_navbar');
+
     // Route::get('/phan-quyen/{id}', [UserPremissionController::class, 'phanquyen']);
     Route::get('/phanquyen/{id}', [UserPremissionController::class, 'quyen'])->name('phanquyen');
 
@@ -98,6 +102,7 @@ Route::group(['middleware'=>['auth','role:blogger']], function(){
     Route::get('/post/create',[NewsController::class,'thembaiviet']);
     Route::post('/post/store',[NewsController::class,'luubaiviet'])->name('post.store');
     Route::post('/post/cate_blog',[NewsController::class,'cate_blog'])->name('post.cate_blog');
+    Route::post('/post/province_blog',[NewsController::class,'province_blog'])->name('post.province_blog');
 });
 
 Route::group(['middleware'=>'auth','role:blogger|viewer'], function(){
@@ -135,7 +140,8 @@ Route::get('/tin-tuc-24h', [NewsController::class,'tin_tuc24h'])->name('tuc24h')
 Route::post('/view',[NewsController::class,'view'])->name('view');
 Route::get('tim-kiem', [NewsController::class,'tim_kiem'])->name('tim_kiem');
 Route::post('dele_account', [NewsController::class,'dele_account'])->name('dele_account');
-
+Route::get('wrap_search', [NewsController::class,'wrap_search'])->name('wrap_search');
+Route::get('ajax_mulSearch', [NewsController::class,'ajax_mulSearch'])->name('ajax_mulSearch');
 Route::get('/topic/{blog_province}', [NewsController::class, 'blog_province'])->name('blog_province');
 
 Route::get('home-new/{slug}', [NewsController::class,'danh_muc'])->name('category');
