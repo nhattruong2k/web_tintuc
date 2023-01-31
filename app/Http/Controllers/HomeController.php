@@ -15,7 +15,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware(['auth', 'verified']);
     }
 
     /**
@@ -25,11 +25,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // $list_blog = Blogger::orderby('id','desc')->get();
-        // $list_user = User::orderby('id','desc')->get();
-        // $count_blog =  $list_blog->count();
-        // $count_user =  $list_user->count();
-        // return view('admin.dashboard.index')->with(compact('count_blog','count_user'));
         return view('index');
     }
 }

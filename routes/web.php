@@ -20,6 +20,8 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\CommentLoginController;
 use App\Http\Controllers\BlogViewController;
 use App\Http\Controllers\TestEmailController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +34,21 @@ use App\Http\Controllers\TestEmailController;
 |
 */
 
-Auth::routes();
+Auth::routes(['verify' => true]);
+Route::get('/email/verify', function () {
+    return view('auth.verify');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/login');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
 Route::get('/register',[RegisterController::class,'index']);
 
 Route::get('/location/provinces', [LocationController::class, 'getProvinces'])->name('getProvinces');

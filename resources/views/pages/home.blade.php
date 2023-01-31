@@ -2,6 +2,20 @@
 
 @section('content')
     @include('pages.navbar')
+    {{-- <div class="container">
+        @if(Session::has('yes'))
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                {{Session::get('yes')}}
+            </div>
+        @endif
+        @if(Session::has('no'))
+            <div class="alert alert-danger">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                {{Session::get('no')}}
+            </div>
+        @endif
+    </div> --}}
     <!-- ***** Header Area End ***** -->
     <!-- ********** Hero Area Start ********** -->
     <div class="hero-area">

@@ -16,6 +16,12 @@ class CustomerMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        if(!Auth::guard('web')->check()){
+            return redirect()->route('login')->with('yes','Vui lòng đăng nhập');
+        }elseif(Auth::guard('web')->user()->status == 0){
+            Auth::guard('web')->logout();
+            return redirect()->route('login')->with('no','Tài khoản của bạn chưa được kích hoạt');
+        }
         return $next($request);
     }
 }

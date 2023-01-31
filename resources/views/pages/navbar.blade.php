@@ -215,33 +215,46 @@
                                             <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
                                         </li>
                                     @endif --}}
-                                @else    
-                                <div class="nav-item dropdown">
-                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        {{ Str::limit((Auth::user()->name),10, '...') }}
-                                    </a>
-                                    <div class="dropdown-menu position-absolute dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="margin:11px 14px">
-                                        <a href="{{route('profileUser')}}" class="dropdown-item">Thông tin cá nhân</a>
-                                        <a href="{{route('password')}}" class="dropdown-item">Thay đổi mật khẩu</a>
-                                    @role('admin|publisher|writer|editer|deleter')
-                                        <a href="{{url('/admin')}}" class="dropdown-item">Trang quản trị</a>
-                                    @endrole
-                                    @role('blogger')
-                                        <a href="{{url('/post/create')}}" class="dropdown-item">Tạo bài viết</a>
-                                    @endrole
-                                        <a href="{{route('notifications')}}" class="dropdown-item">Góp ý kiến</a>
-                                        <a href="{{route('recentViewed')}}" class="dropdown-item">Tin đã xem</a>
-                                        <a class="dropdown-item" href="{{ route('logout') }}"
-                                           onclick="event.preventDefault();
-                                                         document.getElementById('logout-form').submit();">
-                                            {{ __('Logout') }}
+                                @else
+                                @if(Auth::user()->email_verified_at != null)    
+                                    <div class="nav-item dropdown">
+                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                            {{ Str::limit((Auth::user()->name),10, '...') }}
                                         </a>
-    
-                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                            @csrf
-                                        </form>
+                                        <div class="dropdown-menu position-absolute dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="margin:11px 14px">
+                                            <a href="{{route('profileUser')}}" class="dropdown-item">Thông tin cá nhân</a>
+                                            <a href="{{route('password')}}" class="dropdown-item">Thay đổi mật khẩu</a>
+                                        @role('admin|publisher|writer|editer|deleter')
+                                            <a href="{{url('/admin')}}" class="dropdown-item">Trang quản trị</a>
+                                        @endrole
+                                        @role('blogger')
+                                            <a href="{{url('/post/create')}}" class="dropdown-item">Tạo bài viết</a>
+                                        @endrole
+                                            <a href="{{route('notifications')}}" class="dropdown-item">Góp ý kiến</a>
+                                            <a href="{{route('recentViewed')}}" class="dropdown-item">Tin đã xem</a>
+                                            <a class="dropdown-item" href="{{ route('logout') }}"
+                                            onclick="event.preventDefault();
+                                                            document.getElementById('logout-form').submit();">
+                                                {{ __('Logout') }}
+                                            </a>
+        
+                                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                                @csrf
+                                            </form>
+                                        </div>
                                     </div>
-                                </div>
+                                @elseif(Auth::user()->email_verified_at == null)
+                                    @if(Route::has('login'))
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('login') }}">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="35" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                                                </svg>
+                                                Đăng nhập
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endif
                                 @endguest
                             </ul>
                             </div>

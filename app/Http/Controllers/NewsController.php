@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
-
+    
     public function wrap_search(Request $request){
         $val_keyword = $request->tenblog;
         $val_time = $request->time;

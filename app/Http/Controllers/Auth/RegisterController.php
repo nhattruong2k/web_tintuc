@@ -34,7 +34,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/email/verify';
 
     /**
      * Create a new controller instance.
@@ -104,8 +104,6 @@ class RegisterController extends Controller
         }else{
             $new_image  = 'default-avatar.jpg';
         }
-        $token = rand(0000, 9999);
-        $date_created = Carbon\Carbon::now();
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -114,8 +112,6 @@ class RegisterController extends Controller
             'ninkname'=>$data['ninkname'],
             'phone'=>$data['phone'],
             'gender'=>$data['gender'],
-            'token'=>$token,
-            'date_created'=>$date_created,
         ]);
         if(request()->role == 'blogger'){
             $user->syncRoles('blogger');

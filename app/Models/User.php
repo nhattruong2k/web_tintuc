@@ -26,7 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name','ninkname','email','password','avatar','phone',
         'gender','birth_date','province_id','district_id','ward_id','google_id',
-        'accept_blogger','staff_id','date_created','token'
+        'accept_blogger','staff_id','status','token'
     ];
 
     public function blogs()
