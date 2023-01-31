@@ -24,14 +24,14 @@
         button {
         display: inline-block;
         background-color: #7b38d8;
-        width: 295px;
+        width: 250px;
         color: #ffffff;
         text-align: center;
         border: 4px double #cccccc;
         border-radius: 10px;
-        font-size: 20px;
+        font-size: 18px;
         cursor: pointer;
-        margin: 5px;
+        margin: 5px 33px;
         -webkit-transition: all 0.5s; /* add this line, chrome, safari, etc */
         -moz-transition: all 0.5s; /* add this line, firefox */
         -o-transition: all 0.5s; /* add this line, opera */
